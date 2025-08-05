@@ -74,6 +74,7 @@ export type LobbySeat = {
   status: "open" | "reserver" | "occupied";
   playerId?: string;
   playerName?: string;
+  isReady?: boolean;
 };
 
 export type LobbyConfig = {

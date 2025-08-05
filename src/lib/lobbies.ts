@@ -1,16 +1,38 @@
 import { Lobby } from "../lobby.js";
 import { io } from "../server.js";
+import { LobbySeat } from "../types.js";
 
 export const lobbies: Record<string, Lobby> = {};
-export const lobbySubscribers = new Set<string>();
 
 export const broadcastLobbiesUpdate = () => {
   const publicLobbies = Object.values(lobbies).map((lobby) => {
-    const { password, ...publicData } = lobby;
-    return publicData;
+    if (lobby.status === "waiting") return lobby.publicData;
   });
 
-  lobbySubscribers.forEach((subscriperId) => {
-    io.to(subscriperId).emit("LOBBIES_UPDATE", publicLobbies);
-  });
+  io.to("LOBBY_SUBSCRIBERS").emit("LOBBIES_UPDATE", publicLobbies);
+
+  console.log("Lobbies broadcasted");
+  console.log(publicLobbies);
+};
+
+export const getLobbyById = (id: string) => {
+  return Object.values(lobbies).find((lobby) => lobby.id === id);
+};
+
+export const deleteLobby = (lobby: Lobby) => {
+  delete lobbies[lobby.id];
+};
+
+export const clearPlayer = (id: string) => {
+  const lobby = Object.values(lobbies).find((lobby) =>
+    lobby.seats.some((seat) => seat.playerId === id),
+  );
+
+  if (lobby) {
+    const seat = lobby.seats.find((seat) => seat.playerId === id) as LobbySeat;
+    lobby.freeSeat(seat);
+    if (lobby.occupiedHumanSlots === 0) deleteLobby(lobby);
+  } else {
+    console.log("Игрок не найден");
+  }
 };
