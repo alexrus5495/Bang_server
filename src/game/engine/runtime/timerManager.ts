@@ -1,5 +1,5 @@
 export class TimerManager {
-  timers: Record<string, number | undefined>;
+  timers: Record<string, NodeJS.Timeout | undefined>;
 
   constructor() {
     this.timers = {};
@@ -8,7 +8,7 @@ export class TimerManager {
   public setRuntimeTimer(name: string, handler: () => void, timeout: number) {
     this.cleanupRuntimeTimer(name);
 
-    this.timers[name] = window.setTimeout(() => {
+    this.timers[name] = setTimeout(() => {
       handler();
       this.cleanupRuntimeTimer(name);
     }, timeout);

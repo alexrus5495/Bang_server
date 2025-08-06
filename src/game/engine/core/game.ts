@@ -55,4 +55,13 @@ export class Game {
         this.SC.player.applyRewardForOutlaw(killer);
     }
   }
+
+  get publicData() {
+    return {
+      deckLength: this.state._deck.deck.length,
+      disardLength: this.state.discardPile.length,
+      currentplayer: this.state.currentPlayer,
+      players: this.state.players,
+    };
+  }
 }

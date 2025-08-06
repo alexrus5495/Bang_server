@@ -29,7 +29,7 @@ async function createWeaponList(): Promise<WeaponList> {
 
 async function importPackData(packName: string) {
   try {
-    const pack = await import(`../../cards/cards.${packName}.meta.ts`);
+    const pack = await import(`../../cards/cards.${packName}.meta.js`);
     return pack.default;
   } catch (e) {
     throw new Error(

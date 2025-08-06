@@ -33,12 +33,12 @@ export class PlayerController {
     player.equipment.push(card);
   }
 
-  assignToAnEmptySlot(nickname: string) {
+  assignToAnEmptySlot(nickname: string, isAI: boolean = false) {
     for (let i = 0; i <= this.state.players.length - 1; i++) {
       const player = this.state.players[i];
 
       if (!player.flags.isPlayerAssigned) {
-        player.assingPlayer(nickname);
+        player.assingPlayer(nickname, isAI);
         break;
       }
     }

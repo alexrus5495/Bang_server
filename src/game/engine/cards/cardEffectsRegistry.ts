@@ -44,7 +44,7 @@ async function createCardEffectsRegistry(): Promise<CardEffectRegistry> {
 }
 
 async function importPackData(packName: string) {
-  const module = await import(`../../cards/cards.${packName}.effects.ts`);
+  const module = await import(`../../cards/cards.${packName}.effects.js`);
 
   //Check for correct type of default import
   if (!module.default || typeof module.default !== "object") {

@@ -13,6 +13,7 @@ export class Player {
     isEliminated: boolean;
     isUnderSight: boolean;
     isLimitedToBang: false | "duel" | "indians";
+    isAi: boolean;
   };
   public stats: {
     health: { current: number; max: number };
@@ -34,6 +35,7 @@ export class Player {
       isEliminated: false,
       isUnderSight: false,
       isLimitedToBang: false,
+      isAi: false,
     };
     this.stats = {
       bangCardsPlayed: 0,
@@ -49,8 +51,19 @@ export class Player {
     return this.calculateRange();
   }
 
-  public assingPlayer(nickname: string) {
+  get publicData() {
+    return {
+      flags: {
+        isEliminated: this.flags.isEliminated,
+        isAI: this.flags.isAi,
+      },
+      stats: this.stats,
+    };
+  }
+
+  public assingPlayer(nickname: string, isAI: boolean = false) {
     this.nickname = nickname;
+    if (isAI) this.flags.isAi = true;
     this.flags.isPlayerAssigned = true;
   }
 

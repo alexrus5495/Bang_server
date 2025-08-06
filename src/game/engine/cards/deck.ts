@@ -56,7 +56,7 @@ export class Deck {
 
   private async importPack(packName: string) {
     try {
-      const pack = await import(`../../cards/cards.${packName}.meta.ts`);
+      const pack = await import(`../../cards/cards.${packName}.meta.js`);
       return pack.default;
     } catch (e) {
       throw new Error(

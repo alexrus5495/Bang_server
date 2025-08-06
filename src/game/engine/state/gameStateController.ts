@@ -36,8 +36,8 @@ export class GameStateController {
     applyPenaltyForSheriff: (player: Player) =>
       this.applyPenaltyForSheriff(player),
     applyRewardForOutlaw: (player: Player) => this.applyRewardForOutlaw(player),
-    assignToAnEmptySlot: (nickname: string) =>
-      this.playerCtrl.assignToAnEmptySlot(nickname),
+    assignToAnEmptySlot: (nickname: string, isAI: boolean = false) =>
+      this.playerCtrl.assignToAnEmptySlot(nickname, isAI),
     getCurrentPlayer: () => this.playerCtrl.currentPlayer,
     doAsyncForAllOtherPlayers: async (
       excludedPlayer: Player,
