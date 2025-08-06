@@ -1,7 +1,8 @@
 import { Socket } from "socket.io";
-import { broadcastLobbiesUpdate, getLobbyById } from "../../lib/lobbies.js";
 import { io } from "../../server.js";
 import { SocketEvents } from "../../socket-events.js";
+import { lobbyManager } from "../../lib/LobbyManager.js";
+import { broadcastLobbiesUpdate } from "./broadcastLobbiesUpdate.js";
 
 export function onJoinLobby(
   this: Socket,
@@ -11,7 +12,7 @@ export function onJoinLobby(
 ) {
   console.log(`LobbyID: ${lobbyId}`);
 
-  const lobby = getLobbyById(lobbyId);
+  const lobby = lobbyManager.getLobbyById(lobbyId);
 
   if (!lobby) {
     console.log("Failed to add player to the lobby");

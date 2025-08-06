@@ -1,4 +1,5 @@
 import { botNames } from "./config/botNames.js";
+import { Game } from "./game/engine/core/game.js";
 import { LobbyConfig, LobbySeat } from "./types.js";
 
 export class Lobby {
@@ -13,6 +14,7 @@ export class Lobby {
   password: string | null;
   private availableBotNames: string[];
   private usedBotNames: string[];
+  game: Game | null;
 
   constructor(lobbyConfig: LobbyConfig) {
     this.id = this.generateLobbyId();
@@ -26,6 +28,7 @@ export class Lobby {
     this.password = lobbyConfig.isPrivate ? lobbyConfig.password : null;
     this.usedBotNames = [];
     this.availableBotNames = [...botNames];
+    this.game = null;
 
     this.fillBotNames();
   }
@@ -181,7 +184,7 @@ export class Lobby {
   switchSeatType(seat: LobbySeat) {
     if (seat.type === "human") {
       seat.type = "ai";
-      seat.status = "occupied";
+      seat.status = "open";
       this.addBotName(seat, this.getFreeBotName());
     } else {
       seat.type = "human";

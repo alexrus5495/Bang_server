@@ -1,10 +1,10 @@
 import { Socket } from "socket.io";
-import { getLobbyById } from "../../lib/lobbies.js";
 import { io } from "../../server.js";
 import { SocketEvents } from "../../socket-events.js";
+import { lobbyManager } from "../../lib/LobbyManager.js";
 
 export function onToggleReady(this: Socket, lobbyId: string, seatId: number) {
-  const lobby = getLobbyById(lobbyId);
+  const lobby = lobbyManager.getLobbyById(lobbyId);
 
   if (!lobby || !lobby.seats[seatId]) return;
 

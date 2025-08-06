@@ -1,9 +1,9 @@
 import { Socket } from "socket.io";
-import { getLobbyById } from "../../lib/lobbies.js";
 import { SocketEvents } from "../../socket-events.js";
+import { lobbyManager } from "../../lib/LobbyManager.js";
 
 export function onAskForLobby(this: Socket, lobbyId: string) {
-  const lobby = getLobbyById(lobbyId);
+  const lobby = lobbyManager.getLobbyById(lobbyId);
 
   let result: string;
 
