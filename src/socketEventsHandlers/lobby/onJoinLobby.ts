@@ -10,9 +10,7 @@ export function onJoinLobby(
   playerData: { playerName: string; playerId: string },
   password?: string,
 ) {
-  console.log(`LobbyID: ${lobbyId}`);
-
-  const lobby = lobbyManager.getLobbyById(lobbyId);
+  const lobby = lobbyManager.lobbies[lobbyId];
 
   if (!lobby) {
     console.log("Failed to add player to the lobby");

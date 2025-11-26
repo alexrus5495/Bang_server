@@ -9,7 +9,7 @@ export function onExitLobby(this: Socket, lobbyId: string) {
 
   const playerId = this.id;
 
-  const lobby = lobbyManager.getLobbyById(lobbyId);
+  const lobby = lobbyManager.lobbies[lobbyId];
 
   if (!lobby) {
     console.log("Failed to find lobby");

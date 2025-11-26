@@ -30,7 +30,7 @@ export class GameFlow {
     ) => this.CEF.tryToPlayCard(cardIndex, playerIndex, targetPlayerIndex),
   };
 
-  private async prepareGame() {
+  public async prepareGame() {
     await this.matchPreparer.prepare();
     this.phaseCtrl.startGame();
   }

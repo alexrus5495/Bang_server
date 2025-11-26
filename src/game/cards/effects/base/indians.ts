@@ -5,14 +5,14 @@ import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 export async function INDIANS(game: Game, player: Player, cardId: string) {
   console.log(`${player.nickname} plays [INDIANS!]`);
 
-  game.SC.player.doAsyncForAllOtherPlayers(
+  game.StateController.player.doAsyncForAllOtherPlayers(
     player,
     async (otherPlayer: Player) => {
       //1. Flag the player
       otherPlayer.flags.isLimitedToBang = "indians";
 
       //2. Create a promise
-      const absolutePlayerIndex = game.SC.player.getPlayersIndex(otherPlayer);
+      const absolutePlayerIndex = game.StateController.player.getPlayersIndex(otherPlayer);
       const PROMISE_NAME = promiseKeys.indians.replace(
         "{index}",
         `${absolutePlayerIndex}`,

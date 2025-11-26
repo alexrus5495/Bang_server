@@ -10,7 +10,7 @@ export async function GENERAL_STORE(
   console.log(`${player.nickname} plays [GENERAL STORE]`);
 
   //1. Get active players.
-  const activePlayers = game.SC.player.getActivePlayers();
+  const activePlayers = game.StateController.player.getActivePlayers();
 
   //2. Rotate array, so the current player is on top.
   const relativeIndex = activePlayers.indexOf(player);
@@ -20,14 +20,14 @@ export async function GENERAL_STORE(
   ];
 
   //3. Draw cards based on queue length.
-  const cardPool = game.SC.cards.drawCards(queue.length);
+  const cardPool = game.StateController.cards.drawCards(queue.length);
 
   //4. Each player picks a card consecutively.
   for (const pickingPlayer of queue) {
     console.log(`${pickingPlayer.nickname} choosing card from the store...`);
 
     //1. Create a promise.
-    const absoluteIndex = game.SC.player.getPlayersIndex(pickingPlayer);
+    const absoluteIndex = game.StateController.player.getPlayersIndex(pickingPlayer);
     const PROMISE_NAME = promiseKeys.general_store.replace(
       "{index}",
       `${absoluteIndex}`,
@@ -41,7 +41,7 @@ export async function GENERAL_STORE(
     const TIMER_LENGTH_MS = 10000;
     game.runtime.setRuntimeTimer(
       PROMISE_NAME,
-      () => game.SC.player.pickFromGeneralStore(pickingPlayer, randomCard),
+      () => game.StateController.player.pickFromGeneralStore(pickingPlayer, randomCard),
       TIMER_LENGTH_MS,
     );
 

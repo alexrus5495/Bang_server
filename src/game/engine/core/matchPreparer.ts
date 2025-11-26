@@ -3,17 +3,19 @@ import type { Runtime } from "../runtime/runtime.js";
 import { promiseKeys } from "../runtime/runtimeKeys.js";
 
 export class MatchPreparer {
-  SC: GameStateController;
+  StateController: GameStateController;
   runtime: Runtime;
 
   constructor(stateController: GameStateController, runtime: Runtime) {
-    this.SC = stateController;
+    this.StateController = stateController;
     this.runtime = runtime;
   }
 
   async prepare() {
     await this.assingPlayers();
+    console.log("ALL PLAYERS ASSIGNED");
     await this.dealAllCards();
+    console.log("GAME PREPARED");
   }
 
   async assingPlayers() {
@@ -23,9 +25,11 @@ export class MatchPreparer {
       false,
     );
 
-    const allPlayersAssignedSuccessfully = this.runtime.getRuntimePromise(
+    const allPlayersAssigned = this.runtime.getRuntimePromise(
       promiseKeys.allPlayersAssigned,
     );
+
+    const allPlayersAssignedSuccessfully = await allPlayersAssigned.promise;
 
     if (!allPlayersAssignedSuccessfully)
       throw new Error("Players failed to connect in time");
@@ -36,9 +40,14 @@ export class MatchPreparer {
   }
 
   async dealAllCards() {
-    this.SC.deal.roleCards();
-    this.SC.deal.charCards();
+    console.log("DEALING CARDS");
+
+    this.StateController.deal.roleCards();
+    this.StateController.deal.charCards();
     await this.waitForCharSelection();
-    this.SC.deal.playingCards();
+    console.log("ALL CHARS ASSIGNED");
+
+    this.StateController.deal.playingCards();
+    console.log("PLAYING CARDS DEALT");
   }
 }

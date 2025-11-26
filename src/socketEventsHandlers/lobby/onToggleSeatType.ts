@@ -10,7 +10,8 @@ export function onToggleSeatType(
 ) {
   console.log("calle toggle seat type");
 
-  const lobby = lobbyManager.getLobbyById(lobbyId);
+  const lobby = lobbyManager.lobbies[lobbyId];
+
   if (!lobby) return;
 
   const seat = lobby?.seats[seatId];

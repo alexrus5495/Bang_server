@@ -85,3 +85,31 @@ export type LobbyConfig = {
   numberOfSeats: number;
   seats: LobbySeat[];
 };
+
+export type Player_PublicData = {
+  id: string | undefined;
+  isAI: boolean;
+  nickname: string;
+  color: string;
+  char: string;
+  role: string | undefined;
+  range: number;
+  handLength: number;
+  equipment: string[];
+  isEliminated: boolean;
+  stats: {
+    health: { current: number; max: number };
+    bangCardsPlayed: number;
+    bangCardsPlayedLimit: number;
+  };
+};
+
+export type PlayersPublicData = Player_PublicData[];
+
+export type PublicData = {
+  id: string;
+  deckLength: number;
+  discardPileLength: number;
+  currentPlayer: number;
+  playersPublicData: PlayersPublicData;
+};

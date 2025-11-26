@@ -54,7 +54,7 @@ export async function PANIC(
     }
 
     //Pick a card
-    game.SC.player.pickPanicCard(
+    game.StateController.player.pickPanicCard(
       player,
       targetPlayer,
       cardIndex,

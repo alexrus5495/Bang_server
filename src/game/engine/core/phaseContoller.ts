@@ -1,36 +1,40 @@
+import { MessageSystem } from "../../../messageSystem/messageSystem.js";
 import type { Player } from "../player/player.js";
 import type { GameStateController } from "../state/gameStateController.js";
 import type { GameStateValidator } from "../state/gameStateValidator.js";
 
 export class PhaseContoller {
-  private SC: GameStateController;
+  private StateController: GameStateController;
   private validator: GameStateValidator;
+  private MessageSystem: MessageSystem;
 
   constructor(
     stateController: GameStateController,
     validator: GameStateValidator,
+    messageSystem: MessageSystem,
   ) {
-    this.SC = stateController;
+    this.StateController = stateController;
     this.validator = validator;
+    this.MessageSystem = messageSystem;
   }
 
   startGame() {
-    console.log("Game has started!");
-    this.initiatePlayersTurn(this.SC.player.getCurrentPlayer());
+    this.MessageSystem.gameStarted();
+    this.initiatePlayersTurn(this.StateController.player.getCurrentPlayer());
   }
 
   private initiatePlayersTurn(currentPlayer: number) {
-    const player = this.SC.player.getPlayer(currentPlayer);
-    console.log(`Player (${player.nickname}) turn has started!`);
+    const player = this.StateController.player.getPlayer(currentPlayer);
+    this.MessageSystem.playerTurnStart(player);
 
     //Check for dynamite
-    const doesHaveDynamite = this.SC.player._doesHaveEquipmentCard(
+    const doesHaveDynamite = this.StateController.player.hasEquipmentCard(
       player,
       "dynamite",
     );
 
     if (doesHaveDynamite) {
-      this.SC.player.doDynamiteCheck(player);
+      this.StateController.player.doDynamiteCheck(player);
       if (player.flags.isEliminated) {
         this.passTurn();
         return;
@@ -38,15 +42,19 @@ export class PhaseContoller {
     }
 
     //Check for jail
-    const doesHaveJail = this.SC.player._doesHaveEquipmentCard(player, "jail");
+    const doesHaveJail = this.StateController.player.hasEquipmentCard(
+      player,
+      "jail",
+    );
     if (doesHaveJail) {
-      const jailCardIndex = this.SC.player._findEquipmentCardIndex(
+      const jailCardIndex = this.StateController.player.getEquipmentCardIndex(
         player,
         "jail",
       ) as number;
-      this.SC.cards.discardEquipment(jailCardIndex, player);
+      this.StateController.cards.discardEquipment(jailCardIndex, player);
 
-      const isJailCheckSuccessful = this.SC.player.doJailCheck(player);
+      const isJailCheckSuccessful =
+        this.StateController.player.doJailCheck(player);
       if (!isJailCheckSuccessful) {
         this.passTurn();
         return;
@@ -62,7 +70,7 @@ export class PhaseContoller {
     //TODO: add exceptions for some chars.
     const cardsToDraw = 2;
 
-    this.SC.cards.drawToHand(player, cardsToDraw);
+    this.StateController.cards.drawToHand(player, cardsToDraw);
 
     console.log(`Player (${player.nickname}) has drawn ${cardsToDraw} cards.`);
     console.log(`Cards in hand now: ${player.hand.length}`);
@@ -78,7 +86,7 @@ export class PhaseContoller {
 
   initiatePlayingPhase(player: Player) {
     console.log("PHASE 2 - PLAYING CARDS");
-    this.SC.player.resetBangCounter(player);
+    this.StateController.player.resetBangCounter(player);
   }
 
   endPlayingPhase(player: Player) {
@@ -110,14 +118,14 @@ export class PhaseContoller {
   passTurn() {
     console.log(`Passing turn...`);
 
-    const newPlayerIndex = this.SC.player.getNewCurrentPlayer(
-      this.SC.player.getCurrentPlayer(),
+    const newPlayerIndex = this.StateController.player.getNewCurrentPlayer(
+      this.StateController.player.getCurrentPlayer(),
     );
 
-    this.SC.player.setCurrentPlayer(newPlayerIndex);
+    this.StateController.player.setCurrentPlayer(newPlayerIndex);
 
     console.log(
-      `New current player: Player ${newPlayerIndex}(${this.SC.player.getPlayer(newPlayerIndex).nickname})`,
+      `New current player: Player ${newPlayerIndex}(${this.StateController.player.getPlayer(newPlayerIndex).nickname})`,
     );
 
     this.initiatePlayersTurn(newPlayerIndex);

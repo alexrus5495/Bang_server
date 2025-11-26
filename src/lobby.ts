@@ -1,5 +1,6 @@
 import { botNames } from "./config/botNames.js";
 import { Game } from "./game/engine/core/game.js";
+import { MessageSystem } from "./messageSystem/messageSystem.js";
 import { LobbyConfig, LobbySeat } from "./types.js";
 
 export class Lobby {
@@ -12,12 +13,13 @@ export class Lobby {
   seats: LobbySeat[];
   isPrivate: boolean;
   password: string | null;
-  private availableBotNames: string[];
-  private usedBotNames: string[];
   game: Game | null;
+  messageSystem: MessageSystem;
+  private usedBotNames: string[];
+  private availableBotNames: string[];
 
   constructor(lobbyConfig: LobbyConfig) {
-    this.id = this.generateLobbyId();
+    this.id = this.generateId();
     this.name = lobbyConfig.lobbyName;
     this.status = "waiting";
     this.ownerId = "";
@@ -29,7 +31,7 @@ export class Lobby {
     this.usedBotNames = [];
     this.availableBotNames = [...botNames];
     this.game = null;
-
+    this.messageSystem = new MessageSystem(this.id);
     this.fillBotNames();
   }
 
@@ -77,7 +79,13 @@ export class Lobby {
     return playersIDs;
   }
 
-  generateLobbyId() {
+  getSeatByPlayerId(id: string) {
+    for (const seat of this.seats) {
+      if (seat.playerId === id) return seat;
+    }
+  }
+
+  generateId() {
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     const randomValues = new Uint32Array(20);
@@ -185,10 +193,12 @@ export class Lobby {
     if (seat.type === "human") {
       seat.type = "ai";
       seat.status = "open";
+      seat.playerId = this.generateId();
       this.addBotName(seat, this.getFreeBotName());
     } else {
       seat.type = "human";
       seat.status = "open";
+      seat.playerId = undefined;
       this.removeBotName(seat);
     }
   }

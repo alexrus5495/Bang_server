@@ -13,5 +13,5 @@ export function JAIL(
     `${player.nickname} plays [JAIL] againg ${targetPlayer.nickname}`,
   );
 
-  game.SC.player.addCardToEquipment(targetPlayer, cardId);
+  game.StateController.player.addCardToEquipment(targetPlayer, cardId);
 }

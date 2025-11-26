@@ -109,7 +109,7 @@ export class GameStateValidator {
     }
 
     //After this check the range is either "none" (string) or a number
-    const cardRange = range === "inherit" ? player.range : range;
+    const cardRange = range === "inherit" ? player.weapon.range : range;
 
     if (typeof cardRange !== "number") {
       return true;
@@ -150,10 +150,11 @@ export class GameStateValidator {
   getDistance(player: Player, targetPlayer: Player) {
     const currentIndex = this.state.players.indexOf(player);
 
-    let distance = 0;
     let indexToCheck = currentIndex;
     let playerToCheck;
 
+    //Check clockwise
+    let distanceA = 0;
     do {
       indexToCheck = indexToCheck + 1;
 
@@ -161,11 +162,35 @@ export class GameStateValidator {
 
       playerToCheck = this.state.players[indexToCheck];
 
-      if (!playerToCheck.flags.isEliminated) distance++;
+      if (!playerToCheck.flags.isEliminated) distanceA++;
 
-      if (distance >= this.state.players.length)
+      if (distanceA >= this.state.players.length)
         throw new Error("Target player not found");
-    } while (playerToCheck !== targetPlayer);
+    } while (playerToCheck.id !== targetPlayer.id);
+
+    //Check counter-clockwise
+    let distanceB = 0;
+    indexToCheck = currentIndex;
+
+    do {
+      indexToCheck = indexToCheck - 1;
+
+      if (indexToCheck < 0) indexToCheck = this.state.players.length - 1;
+
+      playerToCheck = this.state.players[indexToCheck];
+
+      if (!playerToCheck.flags.isEliminated) distanceB++;
+
+      if (distanceB >= this.state.players.length)
+        throw new Error("Target player not found");
+    } while (playerToCheck.id !== targetPlayer.id);
+
+    //Find the shortest distance
+    let distance = Math.min(distanceA, distanceB);
+
+    //Apply modificators
+    if (player.hasEquipmentCard("scope")) distance--;
+    if (targetPlayer && targetPlayer.hasEquipmentCard("mustang")) distance++;
 
     return distance;
   }

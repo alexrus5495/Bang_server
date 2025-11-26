@@ -3,7 +3,7 @@ import { SocketEvents } from "../../socket-events.js";
 import { lobbyManager } from "../../lib/LobbyManager.js";
 
 export function onAskForLobby(this: Socket, lobbyId: string) {
-  const lobby = lobbyManager.getLobbyById(lobbyId);
+  const lobby = lobbyManager.lobbies[lobbyId];
 
   let result: string;
 

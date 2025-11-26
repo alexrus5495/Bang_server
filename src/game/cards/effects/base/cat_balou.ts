@@ -54,8 +54,7 @@ export async function CAT_BALOU(
     }
 
     //Pick a card
-    game.SC.player.pickCatBalouCard(
-      player,
+    game.StateController.player.pickCatBalouCard(
       targetPlayer,
       cardIndex,
       pickFrom as "hand" | "equipment",

@@ -4,7 +4,7 @@ import { io } from "../../server.js";
 import { SocketEvents } from "../../socket-events.js";
 
 export function onKickOutPlayer(this: Socket, lobbyId: string, seatId: number) {
-  const lobby = lobbyManager.getLobbyById(lobbyId);
+  const lobby = lobbyManager.lobbies[lobbyId];
   if (!lobby) return;
 
   const seatToClear = lobby?.seats[seatId];

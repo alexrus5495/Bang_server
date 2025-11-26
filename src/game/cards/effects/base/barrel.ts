@@ -5,14 +5,14 @@ export function BARREL(game: Game, player: Player, cardId: string) {
   if (!cardId.startsWith("barrel_")) throw new Error("Got unexpected cardId");
   console.log(`${player.nickname} plays [BARREL]`);
 
-  const playersBarrel = game.SC.player._findEquipmentCardIndex(
+  const playersBarrel = game.StateController.player.getEquipmentCardIndex(
     player,
     "barrel",
   );
 
   if (playersBarrel) {
-    game.SC.player.removeEquipmentCard(playersBarrel, player);
+    game.StateController.player.removeEquipmentCard(playersBarrel, player);
   }
 
-  game.SC.player.addCardToEquipment(player, cardId);
+  game.StateController.player.addCardToEquipment(player, cardId);
 }

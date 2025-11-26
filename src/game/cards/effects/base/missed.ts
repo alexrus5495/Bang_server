@@ -13,7 +13,7 @@ export function MISSED(game: Game, player: Player, cardId: string) {
 
   const GATLING_PROMISE_NAME = promiseKeys.gatling.replace(
     "{index}",
-    `${game.SC.player.getPlayersIndex(player)}`,
+    `${game.StateController.player.getPlayersIndex(player)}`,
   );
 
   const gatlingPromise =

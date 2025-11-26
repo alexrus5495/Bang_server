@@ -5,11 +5,11 @@ export function SCOPE(game: Game, player: Player, cardId: string) {
   if (!cardId.startsWith("scope_")) throw new Error("Got unexpected cardId");
   console.log(`${player.nickname} plays [SCOPE]`);
 
-  const playersScope = game.SC.player._findEquipmentCardIndex(player, "scope");
+  const playersScope = game.StateController.player.getEquipmentCardIndex(player, "scope");
 
   if (playersScope) {
-    game.SC.player.removeEquipmentCard(playersScope, player);
+    game.StateController.player.removeEquipmentCard(playersScope, player);
   }
 
-  game.SC.player.addCardToEquipment(player, cardId);
+  game.StateController.player.addCardToEquipment(player, cardId);
 }

@@ -19,7 +19,7 @@ export async function DUEL(
     duelist.flags.isLimitedToBang = "duel";
 
     //2. Create promise
-    const DUELIST_INDEX = game.SC.player.getPlayersIndex(duelist);
+    const DUELIST_INDEX = game.StateController.player.getPlayersIndex(duelist);
     const PROMISE_NAME = promiseKeys.duel.replace(
       "{index}",
       `${DUELIST_INDEX}`,

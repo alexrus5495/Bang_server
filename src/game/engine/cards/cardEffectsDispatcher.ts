@@ -10,7 +10,7 @@ import {
 } from "./cardEffectsRegistry.js";
 
 export class CardEffectsDispatcher {
-  private SC: GameStateController;
+  private StateController: GameStateController;
   private validator: GameStateValidator;
   private game: Game;
 
@@ -19,7 +19,7 @@ export class CardEffectsDispatcher {
     validator: GameStateValidator,
     game: Game,
   ) {
-    this.SC = stateController;
+    this.StateController = stateController;
     this.validator = validator;
     this.game = game;
   }
@@ -29,9 +29,9 @@ export class CardEffectsDispatcher {
     playerIndex: number,
     targetPlayerIndex?: number,
   ) {
-    const player = this.SC.player.getPlayer(playerIndex);
+    const player = this.StateController.player.getPlayer(playerIndex);
     const targetPlayer = targetPlayerIndex
-      ? this.SC.player.getPlayer(targetPlayerIndex)
+      ? this.StateController.player.getPlayer(targetPlayerIndex)
       : undefined;
 
     if (targetPlayer && targetPlayer.flags.isEliminated) {
@@ -60,14 +60,14 @@ export class CardEffectsDispatcher {
     //Equipment cards need to go to the particular player equipment array, so
     //they are not discarded. Where exactly the equipment card goes after being
     //played is decided by their effect function.
-    const cardMeta = this.SC.cards.getCardMeta(
+    const cardMeta = this.StateController.cards.getCardMeta(
       cardId,
       "deck",
     ) as PlayingCardMeta;
     const isEquipment = cardMeta.effect.isEquipment;
 
     if (!isEquipment) {
-      this.SC.cards.discardFromHand(cardIndex, player);
+      this.StateController.cards.discardFromHand(cardIndex, player);
     }
   }
 

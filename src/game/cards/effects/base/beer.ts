@@ -11,6 +11,6 @@ export function BEER(game: Game, player: Player, cardId: string) {
   if (game.validator.playersActive <= 2) {
     console.log("[BEER] has no effect!");
   } else {
-    game.SC.player.heal(player, healingAmount);
+    game.StateController.player.heal(player, healingAmount);
   }
 }

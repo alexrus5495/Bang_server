@@ -6,11 +6,11 @@ export function WINCHESTER(game: Game, player: Player, cardId: string) {
     throw new Error("Got unexpected cardId");
   console.log(`${player.nickname} plays [WINCHESTER]`);
 
-  const playersWeapon = game.SC.player._findWeapon(player);
+  const playersWeapon = game.StateController.player.getCurrentWeaponIndex(player);
 
   if (playersWeapon) {
-    game.SC.player.removeEquipmentCard(playersWeapon, player);
+    game.StateController.player.removeEquipmentCard(playersWeapon, player);
   }
 
-  game.SC.player.addCardToEquipment(player, cardId);
+  game.StateController.player.addCardToEquipment(player, cardId);
 }

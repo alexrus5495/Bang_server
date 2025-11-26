@@ -12,10 +12,6 @@ class LobbieManager {
     this.lobbies[lobby.id] = lobby;
   }
 
-  getLobbyById(id: string) {
-    return Object.values(this.lobbies).find((lobby) => lobby.id === id);
-  }
-
   getLobbyByPlayerId(id: string) {
     return Object.values(this.lobbies).find((lobby) =>
       lobby.seats.some((seat) => seat.playerId === id),
@@ -55,8 +51,6 @@ class LobbieManager {
         return { result: false, reason: "Some seats are still open" };
       }
     }
-
-    console.log("CHECKS ARE PASSED");
 
     return { result: true, reason: "All checks are passed" };
   }

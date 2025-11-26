@@ -1,5 +1,5 @@
 import type { PromiseManager } from "./promiseManager.js";
-import type { TimerManager } from "./timerManager.js";
+import type { TimerData, TimerManager } from "./timerManager.js";
 
 export interface RuntimePromise {
   promise: Promise<boolean> | undefined;
@@ -49,9 +49,35 @@ export class Runtime {
     this.timerMngr.cleanupRuntimeTimer(name);
   }
 
+  setBroadcastedRuntimeTimer(
+    name: string,
+    handler: () => void,
+    timeout: number,
+    receiverID: string | string[],
+  ) {
+    this.timerMngr.setBroadcastedRuntimeTimer(
+      name,
+      handler,
+      timeout,
+      receiverID,
+    );
+  }
+
+  cleanupBroadcastedRuntimeTimer(name: string) {
+    this.timerMngr.cleanupBroadcastedRuntimeTimer(name);
+  }
+
   getRuntimePromise(name: string) {
     const promise = this.promiseMngr.promises[name];
 
     return promise;
+  }
+
+  prepareTimer(name: string, timer: TimerData) {
+    this.timerMngr.prepareTimer(name, timer);
+  }
+
+  getRuntimeTimer(name: string) {
+    return this.timerMngr.getTimer(name);
   }
 }

@@ -4,7 +4,7 @@ import { SocketEvents } from "../../socket-events.js";
 import { lobbyManager } from "../../lib/LobbyManager.js";
 
 export function onToggleReady(this: Socket, lobbyId: string, seatId: number) {
-  const lobby = lobbyManager.getLobbyById(lobbyId);
+  const lobby = lobbyManager.lobbies[lobbyId];
 
   if (!lobby || !lobby.seats[seatId]) return;
 

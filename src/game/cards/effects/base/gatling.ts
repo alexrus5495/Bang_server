@@ -5,20 +5,20 @@ import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 export async function GATLING(game: Game, player: Player, cardId: string) {
   console.log(`${player.nickname} plays [GATLING!]`);
 
-  game.SC.player.doAsyncForAllOtherPlayers(
+  game.StateController.player.doAsyncForAllOtherPlayers(
     player,
     async (otherPlayer: Player, index: number) => {
       //1. Flag the player
       otherPlayer.flags.isUnderSight = true;
 
       //2. Check if player can be saved by a BARREL
-      const playerHasBarrel = game.SC.player._doesHaveEquipmentCard(
+      const playerHasBarrel = game.StateController.player.hasEquipmentCard(
         otherPlayer,
         "barrel",
       );
 
       const barrelCheck = playerHasBarrel
-        ? game.SC.cards.doBarrelCheck()
+        ? game.StateController.cards.doBarrelCheck()
         : undefined;
 
       //3. Create a promise.

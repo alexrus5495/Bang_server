@@ -28,19 +28,19 @@ async function regularBang(game: Game, player: Player, targetPlayer: Player) {
     `${player.nickname} plays [BANG!] agains ${targetPlayer.nickname}`,
   );
   //1. Register card as Played.
-  player.stats.bangCardsPlayed++;
+  player.incrementBangCounter();
 
   //2. Flag the player.
   targetPlayer.flags.isUnderSight = true;
 
   //3. Check if player can be saved by a BARREL.
-  const playerHasBarrel = game.SC.player._doesHaveEquipmentCard(
+  const playerHasBarrel = game.StateController.player.hasEquipmentCard(
     targetPlayer,
     "barrel",
   );
 
   const barrelCheck = playerHasBarrel
-    ? game.SC.cards.doBarrelCheck()
+    ? game.StateController.cards.doBarrelCheck()
     : undefined;
 
   //4. Set counters for MISSED! cards to resolve a promise.
@@ -88,7 +88,7 @@ async function regularBang(game: Game, player: Player, targetPlayer: Player) {
 }
 
 function duelBang(game: Game, player: Player) {
-  const playerIndex = game.SC.player.getPlayersIndex(player);
+  const playerIndex = game.StateController.player.getPlayersIndex(player);
   const DUEL_PROMISE_NAME = promiseKeys.duel.replace(
     "{index}",
     `${playerIndex}`,
@@ -102,7 +102,7 @@ function duelBang(game: Game, player: Player) {
 }
 
 function indiansBang(game: Game, player: Player) {
-  const playerIndex = game.SC.player.getPlayersIndex(player);
+  const playerIndex = game.StateController.player.getPlayersIndex(player);
   const PROMISE_NAME = promiseKeys.indians.replace("{index}", `${playerIndex}`);
   const indiansPromise = game.runtime.getRuntimePromise(PROMISE_NAME);
 

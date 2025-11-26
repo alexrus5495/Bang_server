@@ -3,11 +3,16 @@ import { Deck } from "./cards/deck.js";
 import { Game } from "./core/game.js";
 import { GameState } from "./state/gameState.js";
 import { Player } from "./player/player.js";
+import { MessageSystem } from "../../messageSystem/messageSystem.js";
 
-export async function initializeGame(playerCount: number) {
+export async function initializeGame(
+  playerCount: number,
+  id: string,
+  messageSystem: MessageSystem,
+) {
   const gameState = await createGameState(playerCount);
 
-  return new Game(gameState);
+  return new Game(id, gameState, messageSystem);
 }
 
 async function createGameState(playerCount: number): Promise<GameState> {

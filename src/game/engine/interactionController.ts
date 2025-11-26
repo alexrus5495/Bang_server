@@ -2,16 +2,16 @@ import type { GameStateController } from "./state/gameStateController.js";
 import type { Player } from "./player/player.js";
 
 export class InteractionController {
-  SC: GameStateController;
+  StateController: GameStateController;
   constructor(stateController: GameStateController) {
-    this.SC = stateController;
+    this.StateController = stateController;
   }
   onPlayerPickChar(player: Player, option: 0 | 1) {
-    this.SC.player.setChar(player, option);
+    this.StateController.assignmentService.assignChar(player, option);
   }
 
   onPlayerGeneralStorePick(player: Player, cardId: string) {
-    this.SC.player.pickFromGeneralStore(player, cardId);
+    this.StateController.player.pickFromGeneralStore(player, cardId);
   }
 
   onPlayerPanicPick(
@@ -20,15 +20,23 @@ export class InteractionController {
     cardIndex: number,
     pickFrom: "hand" | "equipment",
   ) {
-    this.SC.player.pickPanicCard(player, targetPlayer, cardIndex, pickFrom);
+    this.StateController.player.pickPanicCard(
+      player,
+      targetPlayer,
+      cardIndex,
+      pickFrom,
+    );
   }
 
   onPlayerCatBalouPick(
-    player: Player,
     targetPlayer: Player,
     cardIndex: number,
     pickFrom: "hand" | "equipment",
   ) {
-    this.SC.player.pickCatBalouCard(player, targetPlayer, cardIndex, pickFrom);
+    this.StateController.player.pickCatBalouCard(
+      targetPlayer,
+      cardIndex,
+      pickFrom,
+    );
   }
 }

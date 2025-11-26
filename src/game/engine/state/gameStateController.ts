@@ -6,8 +6,11 @@ import { PlayerController } from "../player/playerController.js";
 import type { Runtime } from "../runtime/runtime.js";
 import { promiseKeys, timerKeys } from "../runtime/runtimeKeys.js";
 import type { PlayingCardMeta, Role } from "../../../types.js";
+import { PlayerAssignmentService } from "../player/playerAssignmentService.js";
+import { broadcastPublicData } from "../../../lib/broadcastPublicData.js";
 
 export class GameStateController {
+  private id: string;
   private runtime: Runtime;
   private playerCtrl: PlayerController;
   private cardCtrl: CardController;
@@ -15,17 +18,25 @@ export class GameStateController {
     eliminatedPlayer: Player,
     killer?: Player,
   ) => void;
+  assignmentService: PlayerAssignmentService;
 
   constructor(
+    id: string,
     state: GameState,
     validator: GameStateValidator,
     runtime: Runtime,
     handlePlayerEliminated: (eliminatedPlayer: Player, killer?: Player) => void,
   ) {
+    this.id = id;
     this.runtime = runtime;
-    this.playerCtrl = new PlayerController(state, validator, runtime);
+    this.playerCtrl = new PlayerController(id, state, validator, runtime);
     this.cardCtrl = new CardController(state, validator, runtime);
     this.handlePlayerEliminated = handlePlayerEliminated;
+    this.assignmentService = new PlayerAssignmentService(
+      state,
+      validator,
+      runtime,
+    );
   }
 
   public readonly player = {
@@ -36,8 +47,6 @@ export class GameStateController {
     applyPenaltyForSheriff: (player: Player) =>
       this.applyPenaltyForSheriff(player),
     applyRewardForOutlaw: (player: Player) => this.applyRewardForOutlaw(player),
-    assignToAnEmptySlot: (nickname: string, isAI: boolean = false) =>
-      this.playerCtrl.assignToAnEmptySlot(nickname, isAI),
     getCurrentPlayer: () => this.playerCtrl.currentPlayer,
     doAsyncForAllOtherPlayers: async (
       excludedPlayer: Player,
@@ -50,6 +59,7 @@ export class GameStateController {
     getNewCurrentPlayer: (prevPlayer: number) =>
       this.playerCtrl.getNewCurrentPlayer(prevPlayer),
     getPlayer: (index: number) => this.playerCtrl.getPlayer(index),
+    getPlayerById: (id: string) => this.playerCtrl.getPlayerById(id),
     getPlayersByRole: (role: Role) => this.playerCtrl.getPlayersByRole(role),
     getPlayersIndex: (player: Player) =>
       this.playerCtrl.getPlayersIndex(player),
@@ -63,8 +73,6 @@ export class GameStateController {
       this.playerCtrl.removeEquipmentCard(cardIndex, player),
     setCurrentPlayer: (index: number) =>
       this.playerCtrl.setCurrentPlayer(index),
-    setChar: (player: Player, option: 0 | 1) =>
-      this.playerCtrl.setChar(player, option),
     heal: (player: Player, amount: number) =>
       this.playerCtrl.heal(player, amount),
     pickFromGeneralStore: (player: Player, cardId: string) =>
@@ -78,24 +86,17 @@ export class GameStateController {
     ) =>
       this.pickPanicCard(player, targetPlayer, cardIndex, pickFrom, resolved),
     pickCatBalouCard: (
-      player: Player,
       targetPlayer: Player,
       cardIndex: number,
       pickFrom: "hand" | "equipment",
       resolved?: boolean,
-    ) =>
-      this.pickCatBalouCard(
-        player,
-        targetPlayer,
-        cardIndex,
-        pickFrom,
-        resolved,
-      ),
-    _doesHaveEquipmentCard: (player: Player, cardPrefix: string) =>
-      this.playerCtrl._doesHaveEquipmentCard(player, cardPrefix),
-    _findEquipmentCardIndex: (player: Player, cardPrefix: string) =>
-      this.playerCtrl._findEquipmentCardIndex(player, cardPrefix),
-    _findWeapon: (player: Player) => this.playerCtrl._findWeapon(player),
+    ) => this.pickCatBalouCard(targetPlayer, cardIndex, pickFrom, resolved),
+    hasEquipmentCard: (player: Player, cardPrefix: string) =>
+      this.playerCtrl.hasEquipmentCard(player, cardPrefix),
+    getEquipmentCardIndex: (player: Player, cardPrefix: string) =>
+      this.playerCtrl.getEquipmentCardIndex(player, cardPrefix),
+    getCurrentWeaponIndex: (player: Player) =>
+      this.playerCtrl.getCurrentWeaponIndex(player),
   };
 
   public readonly deal = {
@@ -118,6 +119,8 @@ export class GameStateController {
   };
 
   private dealRoleCards() {
+    console.log("DEALING ROLE CARDS");
+
     this.playerCtrl.doForEachPlayer((player, index) => {
       const roleCardId = this.cardCtrl.drawCards(1, "roleDeck")[0] as Role;
 
@@ -125,30 +128,59 @@ export class GameStateController {
         throw new Error("Error when getting role card from the deck.");
       }
 
-      this.playerCtrl.assignRole(player, roleCardId);
-      this.playerCtrl.savePlayerByRole(player, roleCardId);
+      this.assignmentService.assignRole(player, roleCardId);
+      this.assignmentService.savePlayerByRole(player, roleCardId);
 
       if (roleCardId === "sheriff") this.playerCtrl.setCurrentPlayer(index);
     });
   }
 
   private dealCharCards() {
+    console.log("DEALING CHAR CARDS");
+
     const PROMISE_NAME = promiseKeys.charSelection;
     this.runtime.setRuntimePromise(PROMISE_NAME);
 
     this.playerCtrl.doForEachPlayer((player, index) => {
       const options = this.cardCtrl.createCharOptionsSet();
-      this.playerCtrl.setCharOptions(player, options);
+      this.assignmentService.setCharOptions(player, options);
+
+      //Auto assign character to AI Players
+      if (player.isAI) {
+        this.assignmentService.assignChar(player, 0);
+        broadcastPublicData(this.id);
+        return;
+      }
+
+      if (!player.id) {
+        console.error("Failed to create timer: player don't have an ID");
+        return;
+      }
 
       //Set timer to auto pick character after 1 minute.
       const TIMER_NAME = timerKeys.charSelection.replace("{index}", `${index}`);
       const TIMER_LENGTH_MS = 60000;
-      this.runtime.setRuntimeTimer(
+
+      this.runtime.prepareTimer(TIMER_NAME, {
+        data: { userSelected: undefined },
+      });
+
+      //Handler assigns option[0] unless the players had selected any option.
+      const TIMER_HANDLER = () => {
+        console.log("AUTOSELECT TIMER TRIGGERED");
+
+        const timer = this.runtime.getRuntimeTimer(TIMER_NAME);
+        const selectedIndex = timer?.data?.userSelected ?? 0;
+
+        this.assignmentService.assignChar(player, selectedIndex);
+        broadcastPublicData(this.id);
+      };
+
+      this.runtime.setBroadcastedRuntimeTimer(
         TIMER_NAME,
-        () => {
-          this.playerCtrl.setChar(player, 0);
-        },
+        TIMER_HANDLER,
         TIMER_LENGTH_MS,
+        player.id,
       );
     });
   }
@@ -163,6 +195,7 @@ export class GameStateController {
   private drawToHand(player: Player, cardsToDraw: number) {
     const cards = this.cardCtrl.drawCards(cardsToDraw);
     this.playerCtrl.addCardsToTheHand(player, cards);
+    broadcastPublicData(this.id);
   }
 
   private discardFromHand(cardIndex: number, player: Player) {
@@ -201,9 +234,6 @@ export class GameStateController {
   }
 
   private pickFromGeneralStore(player: Player, cardId: string) {
-    //TODO: figure out a way to get card title from the locale
-    console.log(`${player.nickname} picked a card from the store`);
-
     this.playerCtrl.addCardsToTheHand(player, [cardId]);
 
     const playerIndex = this.playerCtrl.getPlayersIndex(player);
@@ -234,16 +264,11 @@ export class GameStateController {
   }
 
   private pickCatBalouCard(
-    player: Player,
     targetPlayer: Player,
     cardIndex: number,
     pickFrom: "hand" | "equipment",
     resolved?: boolean,
   ) {
-    console.log(
-      `${player.nickname} picked a card from ${targetPlayer.nickname}'s ${pickFrom}`,
-    );
-
     const card =
       pickFrom === "hand"
         ? this.player.removeCardFromHand(cardIndex, targetPlayer)
@@ -257,7 +282,7 @@ export class GameStateController {
   }
 
   private doDynamiteCheck(player: Player) {
-    if (!this.player._doesHaveEquipmentCard(player, "dynamite")) {
+    if (!this.player.hasEquipmentCard(player, "dynamite")) {
       throw new Error(
         `doDynamiteCheck was called but player doesn't have dynamite`,
       );
@@ -278,7 +303,7 @@ export class GameStateController {
 
     if (isCheckSuccessfull) {
       //Pass the dynamite card
-      const dynamiteCardIndex = this.player._findEquipmentCardIndex(
+      const dynamiteCardIndex = this.player.getEquipmentCardIndex(
         player,
         "dynamite",
       ) as number;
@@ -294,12 +319,12 @@ export class GameStateController {
     } else {
       //Take dameage
       player.takeDamage(3);
-      if (player.flags.isEliminated) this.handlePlayerEliminated(player);
+      if (player.isEliminated) this.handlePlayerEliminated(player);
     }
   }
 
   private doJailCheck(player: Player) {
-    if (!this.player._doesHaveEquipmentCard(player, "jail")) {
+    if (!this.player.hasEquipmentCard(player, "jail")) {
       throw new Error(
         `doJailCheck was called but player doesn't have dynamite`,
       );
