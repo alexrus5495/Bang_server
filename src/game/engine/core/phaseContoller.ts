@@ -1,3 +1,4 @@
+import { log } from "console";
 import { MessageSystem } from "../../../messageSystem/messageSystem.js";
 import type { Player } from "../player/player.js";
 import type { GameStateController } from "../state/gameStateController.js";
@@ -87,6 +88,10 @@ export class PhaseContoller {
   initiatePlayingPhase(player: Player) {
     console.log("PHASE 2 - PLAYING CARDS");
     this.StateController.player.resetBangCounter(player);
+
+    //TESTING: going straight to discarding cards
+    console.log("SKIPPING PLAYING PHASE");
+    this.endPlayingPhase(player);
   }
 
   endPlayingPhase(player: Player) {
@@ -97,6 +102,22 @@ export class PhaseContoller {
 
   initiateDiscardingPhase(player: Player) {
     console.log("PHASE 3 - DISCARDING CARDS");
+
+    //TESTING: discarding cards blidly to end the turn
+    if (player.isAI) {
+      console.log("DISCARDING BLINDLY");
+      console.log(`Health: ${player.stats.health}`);
+      console.log(`Cards in hand: ${player.hand.length}`);
+
+      while (!this.validator.canEndDiscardingPhase(player)) {
+        console.log("Discarding");
+        this.StateController.cards.discardFromHand(0, player);
+        console.log(`Now cards in hand: ${player.hand.length}`);
+      }
+
+      console.log("ENDING TURN");
+      this.endDiscardingPhase(player);
+    }
   }
 
   endDiscardingPhase(player: Player) {
