@@ -71,7 +71,8 @@ export class CardController {
       if (deck === "deck" && this.validator.isDeckEmpty)
         this.newDeckFromDiscardPile();
 
-      drawnCards.push(this.state[deck].shift() as string);
+      const drawnCard = this.state[deck].shift() as string;
+      drawnCards.push(drawnCard);
 
       if (deck === "deck" && this.validator.isDeckEmpty)
         this.newDeckFromDiscardPile();

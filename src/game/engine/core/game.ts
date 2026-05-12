@@ -36,6 +36,7 @@ export class Game {
       this.id,
       this.state,
       this.validator,
+      this.MessageSystem,
       this.runtime,
       this.handlePlayerEliminated,
     );

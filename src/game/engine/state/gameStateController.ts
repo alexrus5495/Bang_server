@@ -1,19 +1,21 @@
 import { CardController } from "../cards/cardController.js";
 import type { GameState } from "./gameState.js";
 import type { GameStateValidator } from "./gameStateValidator.js";
-import type { Player } from "../player/player.js";
+import { Player } from "../player/player.js";
 import { PlayerController } from "../player/playerController.js";
 import type { Runtime } from "../runtime/runtime.js";
 import { promiseKeys, timerKeys } from "../runtime/runtimeKeys.js";
 import type { PlayingCardMeta, Role } from "../../../types.js";
 import { PlayerAssignmentService } from "../player/playerAssignmentService.js";
 import { broadcastPublicData } from "../../../lib/broadcastPublicData.js";
+import { MessageSystem } from "../../../messageSystem/messageSystem.js";
 
 export class GameStateController {
   private id: string;
   private runtime: Runtime;
   private playerCtrl: PlayerController;
   private cardCtrl: CardController;
+  private MessageSystem: MessageSystem;
   private handlePlayerEliminated: (
     eliminatedPlayer: Player,
     killer?: Player,
@@ -24,6 +26,7 @@ export class GameStateController {
     id: string,
     state: GameState,
     validator: GameStateValidator,
+    messageSystem: MessageSystem,
     runtime: Runtime,
     handlePlayerEliminated: (eliminatedPlayer: Player, killer?: Player) => void,
   ) {
@@ -37,6 +40,7 @@ export class GameStateController {
       validator,
       runtime,
     );
+    this.MessageSystem = messageSystem;
   }
 
   public readonly player = {
@@ -196,6 +200,11 @@ export class GameStateController {
     const cards = this.cardCtrl.drawCards(cardsToDraw);
     this.playerCtrl.addCardsToTheHand(player, cards);
     broadcastPublicData(this.id);
+
+    for (const card of cards) {
+      const index = player.hand.indexOf(card);
+      this.MessageSystem.playerCardDrawn(player, card, index);
+    }
   }
 
   private discardFromHand(cardIndex: number, player: Player) {
