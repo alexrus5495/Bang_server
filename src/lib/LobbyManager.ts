@@ -12,6 +12,10 @@ class LobbieManager {
     this.lobbies[lobby.id] = lobby;
   }
 
+  getLobbyById(lobbyId: string) {
+    return Object.values(this.lobbies).find((lobby) => lobby.id === lobbyId);
+  }
+
   getLobbyByPlayerId(id: string) {
     return Object.values(this.lobbies).find((lobby) =>
       lobby.seats.some((seat) => seat.playerId === id),

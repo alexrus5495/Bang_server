@@ -72,7 +72,7 @@ export type LobbySeat = {
   type: "human" | "ai";
   color: string;
   status: "open" | "reserver" | "occupied";
-  playerId?: string;
+  playerId: string;
   playerName?: string;
   isReady?: boolean;
 };
@@ -86,14 +86,19 @@ export type LobbyConfig = {
   seats: LobbySeat[];
 };
 
+export type Player_Weapon = {
+  card: string;
+  range: number;
+};
+
 export type Player_PublicData = {
   id: string | undefined;
   isAI: boolean;
   nickname: string;
   color: string;
   char: string;
+  weapon: Player_Weapon;
   role: string | undefined;
-  range: number;
   handLength: number;
   equipment: string[];
   isEliminated: boolean;
@@ -104,12 +109,38 @@ export type Player_PublicData = {
   };
 };
 
+export type ClientPlayer = {
+  id: string;
+  isAI: boolean;
+  nickname: string;
+  color: string;
+  role: string;
+  char: string;
+  hand: string[];
+  equipment: string[];
+  flags: {
+    isEliminated: boolean;
+    isUnderSight: boolean;
+  };
+  stats: {
+    health: { current: number; max: number };
+  };
+};
+
 export type PlayersPublicData = Player_PublicData[];
 
 export type PublicData = {
   id: string;
-  deckLength: number;
-  discardPileLength: number;
+  deckTotalSize: number;
+  deckCurrentSize: number;
+  discardCurrentSize: number;
   currentPlayer: number;
   playersPublicData: PlayersPublicData;
+};
+
+export type CardValidationData = {
+  cardId: string;
+  canPlay: boolean;
+  target: "self" | "many" | "one" | "all";
+  possibleTargets: string[] | null;
 };

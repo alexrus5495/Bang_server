@@ -1,6 +1,7 @@
 import type { GameState } from "../state/gameState.js";
 import type { Player } from "../player/player.js";
-import type { Role } from "../../../types.js";
+import type { CardValidationData, Role } from "../../../types.js";
+import { log } from "console";
 
 export class GameStateValidator {
   private state: GameState;
@@ -64,6 +65,49 @@ export class GameStateValidator {
     return currentHandSize <= handSizeLimit;
   }
 
+  validateHand(player: Player) {
+    return player.hand.map((card, index) =>
+      this.validateForEveryone(card, index, player),
+    );
+  }
+
+  validateForEveryone(
+    cardId: string,
+    index: number,
+    player: Player,
+  ): CardValidationData {
+    const targets = this.state.players.filter((p) => p.id !== player.id);
+    const cardTargetType = this.state.deckMeta[cardId].effect.target;
+
+    const validationData: CardValidationData = {
+      cardId,
+      canPlay: false,
+      target: cardTargetType,
+      possibleTargets: [],
+    };
+
+    switch (cardTargetType) {
+      case "self":
+      case "all":
+        const result = this.isCardAllowedToPlay(index, player);
+        validationData.canPlay = result;
+        break;
+      case "many":
+      case "one":
+        for (let t of targets) {
+          const result = this.isCardAllowedToPlay(index, player, t);
+
+          if (result) {
+            if (!validationData.canPlay) validationData.canPlay = true;
+            validationData.possibleTargets?.push(t.id);
+          }
+        }
+        break;
+    }
+
+    return validationData;
+  }
+
   isCardAllowedToPlay(
     cardIndex: number,
     player: Player,
@@ -108,9 +152,15 @@ export class GameStateValidator {
       return true;
     }
 
-    //After this check the range is either "none" (string) or a number
+    // Range: "inherit" | "none" | number
+    // "Inherit" = weapon range
+    // "Number" = got its own range
+    // "None" = no range
+    //
+    // If "inherit" - get weapon range, in other case continue.
     const cardRange = range === "inherit" ? player.weapon.range : range;
 
+    // Now range could only be a number or "none"
     if (typeof cardRange !== "number") {
       return true;
     }
@@ -128,7 +178,7 @@ export class GameStateValidator {
           return result;
         } else {
           const distance = this.getDistance(player, targetPlayer);
-          return cardRange <= distance;
+          return distance <= cardRange;
         }
       }
       case "many": {
@@ -215,7 +265,7 @@ export class GameStateValidator {
     if (player.flags.isUnderSight) return cardId === "missed";
 
     //Check other special conditions for certain cards.
-    switch (cardId) {
+    switch (cardId.split("_")[0]) {
       case "bang": {
         return player.stats.bangCardsPlayed < player.stats.bangCardsPlayedLimit;
       }
@@ -237,7 +287,7 @@ export class GameStateValidator {
         }
       }
       default:
-        return false;
+        return true;
     }
   }
 

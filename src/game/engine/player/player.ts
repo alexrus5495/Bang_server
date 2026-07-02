@@ -1,9 +1,10 @@
-import { LobbySeat } from "../../../types.js";
+import { LobbySeat, Player_PublicData } from "../../../types.js";
 import { WEAPON_LIST } from "../cards/weaponList.js";
+import type { ClientPlayer } from "../../../types.js";
 
 export class Player {
   isAI: boolean | undefined;
-  id: string | undefined;
+  id: string;
   nickname: string;
   color: string | undefined;
   role: string;
@@ -27,7 +28,7 @@ export class Player {
 
   constructor() {
     this.isAI = undefined;
-    this.id = undefined;
+    this.id = "";
     this.nickname = "";
     this.color = undefined;
     this.role = "";
@@ -80,12 +81,32 @@ export class Player {
     return this.stats.health.max;
   }
 
-  get publicData() {
+  getAssignedData(): Pick<ClientPlayer, "id" | "nickname" | "color" | "isAI"> {
+    return {
+      id: this.id!,
+      nickname: this.nickname,
+      color: this.color!,
+      isAI: this.isAI!,
+    };
+  }
+
+  getRoleData(): Pick<ClientPlayer, "role"> {
+    return { role: this.role };
+  }
+
+  getCharData(): Pick<ClientPlayer, "char" | "stats"> {
+    return {
+      char: this.char,
+      stats: { health: { ...this.stats.health } },
+    };
+  }
+
+  get publicData(): Player_PublicData {
     return {
       id: this.id,
-      isAI: this.isAI,
+      isAI: this.isAI as boolean,
       nickname: this.nickname,
-      color: this.color,
+      color: this.color as string,
       weapon: this.weapon,
       role:
         this.role === "sheriff"

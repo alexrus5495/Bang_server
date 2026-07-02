@@ -8,6 +8,7 @@ import type { Player } from "../player/player.js";
 
 export class GameState {
   _deck: Deck;
+  totalCardsInGame: number;
   private _charDeck: Deck;
   private _roleDeck: Deck;
   discardPile: string[];
@@ -17,6 +18,7 @@ export class GameState {
 
   constructor(deck: Deck, charDeck: Deck, roleDeck: Deck, players: Player[]) {
     this._deck = deck;
+    this.totalCardsInGame = this._deck.deck.length;
     this._charDeck = charDeck;
     this._roleDeck = roleDeck;
     this.players = players;
