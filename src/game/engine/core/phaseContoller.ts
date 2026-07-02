@@ -1,5 +1,4 @@
-import { log } from "console";
-import { MessageSystem } from "../../../messageSystem/messageSystem.js";
+import { EventSystem } from "../../../eventSystem/eventSystem.js";
 import type { Player } from "../player/player.js";
 import type { GameStateController } from "../state/gameStateController.js";
 import type { GameStateValidator } from "../state/gameStateValidator.js";
@@ -7,27 +6,29 @@ import type { GameStateValidator } from "../state/gameStateValidator.js";
 export class PhaseContoller {
   private StateController: GameStateController;
   private validator: GameStateValidator;
-  private MessageSystem: MessageSystem;
+  private EventSystem: EventSystem;
 
   constructor(
     stateController: GameStateController,
     validator: GameStateValidator,
-    messageSystem: MessageSystem,
+    eventSystem: EventSystem,
   ) {
     this.StateController = stateController;
     this.validator = validator;
-    this.MessageSystem = messageSystem;
+    this.EventSystem = eventSystem;
   }
 
   startGame() {
-    this.MessageSystem.gameStarted();
+    this.EventSystem.preLaunch.gameStarted();
     this.initiatePlayersTurn(this.StateController.player.getCurrentPlayer());
   }
 
   private initiatePlayersTurn(currentPlayer: number) {
     const player = this.StateController.player.getPlayer(currentPlayer);
-    this.MessageSystem.playerTurnStart(player);
+    this.EventSystem.flow.turnStart(player.id);
 
+    //WARNING: REFACTOR
+    //
     //Check for dynamite
     const doesHaveDynamite = this.StateController.player.hasEquipmentCard(
       player,
@@ -66,7 +67,7 @@ export class PhaseContoller {
   }
 
   private initiateDrawingPhase(player: Player) {
-    console.log("PHASE 1 - DRAWING CARDS.");
+    this.EventSystem.flow.drawingStart(player.id);
 
     //TODO: add exceptions for some chars.
     const cardsToDraw = 2;
@@ -80,28 +81,28 @@ export class PhaseContoller {
   }
 
   endDrawingPhase(player: Player) {
-    console.log("End of drawing phase");
-
+    this.EventSystem.flow.drawingEnd(player.id);
     this.initiatePlayingPhase(player);
   }
 
   initiatePlayingPhase(player: Player) {
-    console.log("PHASE 2 - PLAYING CARDS");
+    this.EventSystem.flow.playingStart(player.id);
     this.StateController.player.resetBangCounter(player);
 
     //TESTING: going straight to discarding cards
-    console.log("SKIPPING PLAYING PHASE");
-    this.endPlayingPhase(player);
+    if (player.isAI) {
+      console.log("SKIPPING PLAYING PHASE");
+      this.endPlayingPhase(player);
+    }
   }
 
   endPlayingPhase(player: Player) {
-    console.log("End of playing phase");
-
+    this.EventSystem.flow.playingEnd(player.id);
     this.initiateDiscardingPhase(player);
   }
 
   initiateDiscardingPhase(player: Player) {
-    console.log("PHASE 3 - DISCARDING CARDS");
+    this.EventSystem.flow.discardingStart(player.id);
 
     //TESTING: discarding cards blidly to end the turn
     if (player.isAI) {
@@ -111,7 +112,9 @@ export class PhaseContoller {
 
       while (!this.validator.canEndDiscardingPhase(player)) {
         console.log("Discarding");
+        const discardedCard = player.hand[0];
         this.StateController.cards.discardFromHand(0, player);
+        this.EventSystem.card.discarded(player.id, discardedCard, 0);
         console.log(`Now cards in hand: ${player.hand.length}`);
       }
 
@@ -125,14 +128,14 @@ export class PhaseContoller {
       console.log("Player must discard extra cards before ending turn");
     } else {
       console.log("End of discarding phase");
+      this.EventSystem.flow.discardingEnd(player.id);
 
       this.endPlayersTurn(player);
     }
   }
 
   endPlayersTurn(player: Player) {
-    console.log(`End of Player (${player.nickname}) turn`);
-
+    this.EventSystem.flow.turnEnd(player.id);
     this.passTurn();
   }
 

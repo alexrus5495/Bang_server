@@ -1,6 +1,6 @@
 import { botNames } from "./config/botNames.js";
 import { Game } from "./game/engine/core/game.js";
-import { MessageSystem } from "./messageSystem/messageSystem.js";
+import { EventSystem } from "./eventSystem/eventSystem.js";
 import { LobbyConfig, LobbySeat } from "./types.js";
 
 export class Lobby {
@@ -14,7 +14,7 @@ export class Lobby {
   isPrivate: boolean;
   password: string | null;
   game: Game | null;
-  messageSystem: MessageSystem;
+  eventSystem: EventSystem;
   private usedBotNames: string[];
   private availableBotNames: string[];
 
@@ -31,7 +31,7 @@ export class Lobby {
     this.usedBotNames = [];
     this.availableBotNames = [...botNames];
     this.game = null;
-    this.messageSystem = new MessageSystem(this.id);
+    this.eventSystem = new EventSystem(this.id);
     this.fillBotNames();
   }
 
@@ -112,7 +112,7 @@ export class Lobby {
   freeSeat(seat: LobbySeat) {
     const isLobbyOwner = seat.playerId === this.ownerId;
 
-    seat.playerId = undefined;
+    seat.playerId = "";
     seat.playerName = undefined;
     seat.status = "open";
     seat.isReady = false;
@@ -198,7 +198,7 @@ export class Lobby {
     } else {
       seat.type = "human";
       seat.status = "open";
-      seat.playerId = undefined;
+      seat.playerId = "";
       this.removeBotName(seat);
     }
   }

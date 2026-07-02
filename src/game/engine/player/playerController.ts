@@ -3,7 +3,6 @@ import type { GameState } from "../state/gameState.js";
 import type { GameStateValidator } from "../state/gameStateValidator.js";
 import type { Player } from "./player.js";
 import type { Runtime } from "../runtime/runtime.js";
-import { broadcastPublicData } from "../../../lib/broadcastPublicData.js";
 
 export class PlayerController {
   id: string;
@@ -29,12 +28,10 @@ export class PlayerController {
 
   addCardsToTheHand(player: Player, cards: string[]) {
     player.addCardsToTheHand(cards);
-    broadcastPublicData(this.id);
   }
 
   addCardToEquipment(player: Player, card: string) {
     player.addCardsToEquipment(card);
-    broadcastPublicData(this.id);
   }
 
   doForEachPlayer(callback: (player: Player, index: number) => void) {
@@ -58,25 +55,21 @@ export class PlayerController {
 
   removeCardFromHand(cardIndex: number, player: Player) {
     const card = player.removeCard("hand", cardIndex);
-    broadcastPublicData(this.id);
     return card;
   }
 
   removeWholeHand(player: Player) {
     const card = player.removeAllCards("hand");
-    broadcastPublicData(this.id);
     return card;
   }
 
   removeAllEquipment(player: Player) {
     const removedCards = player.removeAllCards("equipment");
-    broadcastPublicData(this.id);
     return removedCards;
   }
 
   removeEquipmentCard(cardIndex: number, player: Player) {
     const card = player.removeCard("equipment", cardIndex);
-    broadcastPublicData(this.id);
     return card;
   }
 
@@ -153,7 +146,6 @@ export class PlayerController {
 
   heal(player: Player, amount: number) {
     player.heal(amount);
-    broadcastPublicData(this.id);
   }
 
   hasEquipmentCard(player: Player, cardPrefix: string) {

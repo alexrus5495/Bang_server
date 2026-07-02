@@ -17,7 +17,7 @@ export async function onCreateGame(this: Socket, lobbyId: string) {
   lobby.game = await initializeGame(
     lobby.numberOfSeats,
     lobby.id,
-    lobby.messageSystem,
+    lobby.eventSystem,
   );
 
   io.to(lobbyId).emit(SocketEvents.GAME_CREATED);

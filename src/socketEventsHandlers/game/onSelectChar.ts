@@ -1,6 +1,5 @@
 import { Socket } from "socket.io";
 import { lobbyManager } from "../../lib/LobbyManager.js";
-import { broadcastPublicData } from "../../lib/broadcastPublicData.js";
 import { timerKeys } from "../../game/engine/runtime/runtimeKeys.js";
 
 export function onSelectChar(this: Socket, lobbyId: string, charOption: 0 | 1) {
@@ -24,5 +23,4 @@ export function onSelectChar(this: Socket, lobbyId: string, charOption: 0 | 1) {
 
   //Assign character
   game.StateController.assignmentService.assignChar(player, charOption);
-  broadcastPublicData(game.id);
 }

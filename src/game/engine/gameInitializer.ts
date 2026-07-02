@@ -3,16 +3,22 @@ import { Deck } from "./cards/deck.js";
 import { Game } from "./core/game.js";
 import { GameState } from "./state/gameState.js";
 import { Player } from "./player/player.js";
-import { MessageSystem } from "../../messageSystem/messageSystem.js";
+import { EventSystem } from "../../eventSystem/eventSystem.js";
 
 export async function initializeGame(
   playerCount: number,
   id: string,
-  messageSystem: MessageSystem,
+  eventSystem: EventSystem,
 ) {
   const gameState = await createGameState(playerCount);
 
-  return new Game(id, gameState, messageSystem);
+  eventSystem.preLaunch.gameCreated({
+    deckSize: gameState.deck.length,
+    gameId: id,
+    numberOfSeats: gameState.players.length,
+  });
+
+  return new Game(id, gameState, eventSystem);
 }
 
 async function createGameState(playerCount: number): Promise<GameState> {

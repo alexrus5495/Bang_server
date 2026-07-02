@@ -1,8 +1,6 @@
 import { Socket } from "socket.io";
 import { lobbyManager } from "../../lib/LobbyManager.js";
 import { SocketEvents } from "../../socket-events.js";
-import { getClientHand } from "../../lib/getClientHand.js";
-import { formPublicData } from "../../lib/formPublicData.js";
 
 export function onJoinGame(this: Socket, lobbyId: string) {
   // const lobby = lobbyManager.getLobbyById(lobbyId);
@@ -21,7 +19,5 @@ export function onJoinGame(this: Socket, lobbyId: string) {
 
   lobby.game.StateController.assignmentService.assignToAnEmptySlot(seat);
 
-  const publicData = formPublicData(this.id, lobby.game);
   this.emit(SocketEvents.SEND_CARDS_META, lobby.game.publicCardMeta);
-  this.emit(SocketEvents.SEND_PUBLIC_DATA, publicData);
 }

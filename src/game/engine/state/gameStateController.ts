@@ -7,15 +7,14 @@ import type { Runtime } from "../runtime/runtime.js";
 import { promiseKeys, timerKeys } from "../runtime/runtimeKeys.js";
 import type { PlayingCardMeta, Role } from "../../../types.js";
 import { PlayerAssignmentService } from "../player/playerAssignmentService.js";
-import { broadcastPublicData } from "../../../lib/broadcastPublicData.js";
-import { MessageSystem } from "../../../messageSystem/messageSystem.js";
+import { EventSystem } from "../../../eventSystem/eventSystem.js";
 
 export class GameStateController {
   private id: string;
   private runtime: Runtime;
   private playerCtrl: PlayerController;
   private cardCtrl: CardController;
-  private MessageSystem: MessageSystem;
+  private EventSystem: EventSystem;
   private handlePlayerEliminated: (
     eliminatedPlayer: Player,
     killer?: Player,
@@ -26,7 +25,7 @@ export class GameStateController {
     id: string,
     state: GameState,
     validator: GameStateValidator,
-    messageSystem: MessageSystem,
+    eventSystem: EventSystem,
     runtime: Runtime,
     handlePlayerEliminated: (eliminatedPlayer: Player, killer?: Player) => void,
   ) {
@@ -39,8 +38,9 @@ export class GameStateController {
       state,
       validator,
       runtime,
+      eventSystem,
     );
-    this.MessageSystem = messageSystem;
+    this.EventSystem = eventSystem;
   }
 
   public readonly player = {
@@ -152,7 +152,6 @@ export class GameStateController {
       //Auto assign character to AI Players
       if (player.isAI) {
         this.assignmentService.assignChar(player, 0);
-        broadcastPublicData(this.id);
         return;
       }
 
@@ -177,7 +176,6 @@ export class GameStateController {
         const selectedIndex = timer?.data?.userSelected ?? 0;
 
         this.assignmentService.assignChar(player, selectedIndex);
-        broadcastPublicData(this.id);
       };
 
       this.runtime.setBroadcastedRuntimeTimer(
@@ -190,20 +188,20 @@ export class GameStateController {
   }
 
   private dealPlayingCards() {
+    this.EventSystem.preLaunch.dealingCards();
     this.playerCtrl.doForEachPlayer((player) => {
       const cardsToDeal = this.playerCtrl.getMaxHealth(player);
       this.drawToHand(player, cardsToDeal);
     });
+    this.EventSystem.preLaunch.cardsDealt();
   }
 
   private drawToHand(player: Player, cardsToDraw: number) {
     const cards = this.cardCtrl.drawCards(cardsToDraw);
     this.playerCtrl.addCardsToTheHand(player, cards);
-    broadcastPublicData(this.id);
-
     for (const card of cards) {
       const index = player.hand.indexOf(card);
-      this.MessageSystem.playerCardDrawn(player, card, index);
+      this.EventSystem.card.drawn(player.id, card, index);
     }
   }
 

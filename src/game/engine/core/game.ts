@@ -10,7 +10,8 @@ import { TimerManager } from "../runtime/timerManager.js";
 import { PhaseContoller } from "./phaseContoller.js";
 import { CardEffectsDispatcher } from "../cards/cardEffectsDispatcher.js";
 import type { Player } from "../player/player.js";
-import { MessageSystem } from "../../../messageSystem/messageSystem.js";
+import { PlayersPublicData, PublicData } from "../../../types.js";
+import { EventSystem } from "../../../eventSystem/eventSystem.js";
 
 export class Game {
   id: string;
@@ -20,33 +21,33 @@ export class Game {
   validator: GameStateValidator;
   IC: InteractionController;
   flow: GameFlow;
-  MessageSystem: MessageSystem;
+  EventSystem: EventSystem;
 
   public constructor(
     id: string,
     gameState: GameState,
-    messageSystem: MessageSystem,
+    eventSystem: EventSystem,
   ) {
     this.id = id;
     this.runtime = new Runtime(new PromiseManager(), new TimerManager());
     this.state = gameState;
     this.validator = new GameStateValidator(this.state);
-    this.MessageSystem = messageSystem;
+    this.EventSystem = eventSystem;
     this.StateController = new GameStateController(
       this.id,
       this.state,
       this.validator,
-      this.MessageSystem,
+      this.EventSystem,
       this.runtime,
       this.handlePlayerEliminated,
     );
     this.IC = new InteractionController(this.StateController); //WARNING: Don't forget about this one!
     this.flow = new GameFlow(
-      new MatchPreparer(this.StateController, this.runtime),
+      new MatchPreparer(this.StateController, this.runtime, this.EventSystem),
       new PhaseContoller(
         this.StateController,
         this.validator,
-        this.MessageSystem,
+        this.EventSystem,
       ),
       new CardEffectsDispatcher(this.StateController, this.validator, this),
     );
@@ -71,8 +72,8 @@ export class Game {
     }
   }
 
-  get publicData() {
-    const playersPublicData = [];
+  get publicData(): PublicData {
+    const playersPublicData: PlayersPublicData = [];
 
     for (const player of this.state.players) {
       playersPublicData.push(player.publicData);
@@ -80,8 +81,9 @@ export class Game {
 
     return {
       id: this.id,
-      deckLength: this.state._deck.deck.length,
-      disardPileLength: this.state.discardPile.length,
+      deckTotalSize: this.state.totalCardsInGame,
+      deckCurrentSize: this.state._deck.deck.length,
+      discardCurrentSize: this.state.discardPile.length,
       currentPlayer: this.state.currentPlayer,
       playersPublicData: playersPublicData,
     };

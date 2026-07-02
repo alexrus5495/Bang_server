@@ -99,7 +99,7 @@ export async function onTestGame(this: Socket) {
   lobby.game = await initializeGame(
     lobby.numberOfSeats,
     lobby.id,
-    lobby.messageSystem,
+    lobby.eventSystem,
   );
 
   io.to(lobby.id).emit(SocketEvents.GAME_CREATED);
