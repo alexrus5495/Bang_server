@@ -47,4 +47,5 @@ export const SocketEvents = createEvents([
   "SEND_TIMER_UPDATE",
   "REQUEST_HAND_VALIDATION",
   "SEND_HAND_VALIDATION_DATA",
+  "PLAY_CARD",
 ] as const);
