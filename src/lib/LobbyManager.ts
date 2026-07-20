@@ -16,6 +16,19 @@ class LobbieManager {
     return Object.values(this.lobbies).find((lobby) => lobby.id === lobbyId);
   }
 
+  getGameById(gameId: string) {
+    const lobby = Object.values(this.lobbies).find(
+      (lobby) => lobby.game?.id === gameId,
+    );
+
+    if (!lobby) {
+      console.log(`failed to get the lobby`);
+      return;
+    }
+
+    return lobby.game;
+  }
+
   getLobbyByPlayerId(id: string) {
     return Object.values(this.lobbies).find((lobby) =>
       lobby.seats.some((seat) => seat.playerId === id),
