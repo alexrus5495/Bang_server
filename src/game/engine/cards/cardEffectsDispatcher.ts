@@ -1,3 +1,4 @@
+import { EventSystem } from "../../../eventSystem/eventSystem.js";
 import type { PlayingCardMeta } from "../../../types.js";
 import type { Game } from "../core/game.js";
 import type { Player } from "../player/player.js";
@@ -12,42 +13,24 @@ import {
 export class CardEffectsDispatcher {
   private StateController: GameStateController;
   private validator: GameStateValidator;
+  private EventSystem: EventSystem;
   private game: Game;
 
   constructor(
     stateController: GameStateController,
     validator: GameStateValidator,
+    eventSystem: EventSystem,
     game: Game,
   ) {
     this.StateController = stateController;
     this.validator = validator;
     this.game = game;
+    this.EventSystem = eventSystem;
   }
 
-  tryToPlayCard(
-    cardIndex: number,
-    playerIndex: number,
-    targetPlayerIndex?: number,
-  ) {
-    const player = this.StateController.player.getPlayer(playerIndex);
-    const targetPlayer = targetPlayerIndex
-      ? this.StateController.player.getPlayer(targetPlayerIndex)
-      : undefined;
-
-    if (targetPlayer && targetPlayer.flags.isEliminated) {
-      console.log(`Can't play a card against eliminated player.`);
-      return;
-    }
-
-    if (this.validator.isCardAllowedToPlay(cardIndex, player, targetPlayer)) {
-      this.playCard(cardIndex, player, targetPlayer);
-    } else {
-      console.log(`Card is not allowed to play!`);
-    }
-  }
-
-  private playCard(cardIndex: number, player: Player, targetPlayer?: Player) {
+  playCard(cardIndex: number, player: Player, targetPlayer?: Player) {
     let cardId = player.hand[cardIndex];
+    this.EventSystem.card.played(player.id, cardId, targetPlayer?.id);
 
     //1. Trigger card effect
     if (player.char === "calamity_janet") {
