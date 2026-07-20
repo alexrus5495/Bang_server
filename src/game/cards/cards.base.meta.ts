@@ -422,20 +422,20 @@ const WEAPONS = {
     rankAndSuit: { rank: "K", suit: "clubs" },
     cardInstanceId: "remington_01",
   },
-  schofiled_01: {
+  schofield_01: {
     ...schofieldBase,
     rankAndSuit: { rank: "J", suit: "clubs" },
-    cardInstanceId: "schofiled_01",
+    cardInstanceId: "schofield_01",
   },
-  schofiled_02: {
+  schofield_02: {
     ...schofieldBase,
     rankAndSuit: { rank: "K", suit: "spades" },
-    cardInstanceId: "schofiled_02",
+    cardInstanceId: "schofield_02",
   },
-  schofiled_03: {
+  schofield_03: {
     ...schofieldBase,
     rankAndSuit: { rank: "Q", suit: "clubs" },
-    cardInstanceId: "schofiled_03",
+    cardInstanceId: "schofield_03",
   },
   volcanic_01: {
     ...volcanicBase,
