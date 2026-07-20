@@ -22,4 +22,14 @@ export class CardEvents {
       visibleTo,
     });
   }
+
+  played(playerId: string, cardId: string, targetPlayerId?: string) {
+    this.eventSystem.register("CARD_PLAYED", {
+      playerId,
+      cardId,
+      targetPlayerId,
+    });
+
+    console.log(`Registered card played event`);
+  }
 }

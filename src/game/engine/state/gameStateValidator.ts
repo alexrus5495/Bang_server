@@ -115,6 +115,8 @@ export class GameStateValidator {
   ) {
     let cardId = player.hand[cardIndex];
 
+    if (targetPlayer && targetPlayer.flags.isEliminated) return false;
+
     if (player.char === "calamity_janet")
       cardId = this.tryCalamityJanetCardSwap(cardId, player);
 

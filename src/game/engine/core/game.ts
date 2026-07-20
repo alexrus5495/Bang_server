@@ -20,6 +20,7 @@ export class Game {
   StateController: GameStateController;
   validator: GameStateValidator;
   IC: InteractionController;
+  CEF: CardEffectsDispatcher;
   flow: GameFlow;
   EventSystem: EventSystem;
 
@@ -42,6 +43,12 @@ export class Game {
       this.handlePlayerEliminated,
     );
     this.IC = new InteractionController(this.StateController); //WARNING: Don't forget about this one!
+    this.CEF = new CardEffectsDispatcher(
+      this.StateController,
+      this.validator,
+      this.EventSystem,
+      this,
+    );
     this.flow = new GameFlow(
       new MatchPreparer(this.StateController, this.runtime, this.EventSystem),
       new PhaseContoller(
@@ -49,7 +56,6 @@ export class Game {
         this.validator,
         this.EventSystem,
       ),
-      new CardEffectsDispatcher(this.StateController, this.validator, this),
     );
   }
 
