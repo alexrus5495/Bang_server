@@ -1,10 +1,9 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import { equipCardEffect } from "../helpers.js";
 
-export function MUSTANG(game: Game, player: Player, cardId: string) {
+export const MUSTANG: EffectHandler = ({ game, cardId, player }) => {
   if (!cardId.startsWith("mustang_")) throw new Error("Got unexpected cardId");
   console.log(`${player.nickname} plays [MUSTANG]`);
 
   equipCardEffect(game, player, cardId, "mustang_");
-}
+};

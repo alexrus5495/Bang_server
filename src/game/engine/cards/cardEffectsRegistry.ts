@@ -2,23 +2,19 @@ import { CARDPACKS } from "../../../config/cardpacks.js";
 import type { Game } from "../core/game.js";
 import type { Player } from "../player/player.js";
 
-export type EffectWithTarget = (
-  game: Game,
-  player: Player,
-  targetPlayer: Player,
-  cardId: string, // A plug to make a type length === 4 (to differentiate from EffectWithoutTarget)
-) => void;
+export type EffectHandler = ({
+  game,
+  player,
+  targetPlayer,
+  cardId,
+}: {
+  game: Game;
+  player: Player;
+  targetPlayer?: Player;
+  cardId: string;
+}) => void;
 
-export type EffectWithoutTarget = (
-  game: Game,
-  player: Player,
-  cardId: string,
-) => void;
-
-export type CardEffectRegistry = Record<
-  string,
-  EffectWithTarget | EffectWithoutTarget
->;
+export type CardEffectRegistry = Record<string, EffectHandler>;
 
 export const CARD_EFFECTS_REGISTRY: CardEffectRegistry =
   await createCardEffectsRegistry().catch((e) => {

@@ -1,9 +1,9 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
+import { equipCardEffect } from "../helpers.js";
 
-export function DYNAMITE(game: Game, player: Player, cardId: string) {
+export const DYNAMITE: EffectHandler = ({ cardId, player, game }) => {
   if (!cardId.startsWith("dynamite_")) throw new Error("Got unexpected cardId");
   console.log(`${player.nickname} plays [DYNAMITE]`);
 
-  game.StateController.player.addCardToEquipment(player, cardId);
-}
+  equipCardEffect(game, player, cardId, "dynamite_");
+};
