@@ -238,7 +238,7 @@ export const panicBase: Omit<
   ],
   tooltipIcon: false,
   pack: "base",
-  effect: { target: "self", range: 1, isEquipment: false },
+  effect: { target: "one", range: 1, isEquipment: false },
 };
 
 export const saloonBase: Omit<

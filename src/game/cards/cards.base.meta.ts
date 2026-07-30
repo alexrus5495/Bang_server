@@ -214,7 +214,7 @@ const REGULAR = {
     rankAndSuit: { rank: "K", suit: "hearts" },
     cardInstanceId: "cat_balou_01",
   },
-  cat_baloue_02: {
+  cat_balou_02: {
     ...cat_balouBase,
     rankAndSuit: { rank: "J", suit: "diamonds" },
     cardInstanceId: "cat_balou_02",
@@ -224,7 +224,7 @@ const REGULAR = {
     rankAndSuit: { rank: "9", suit: "diamonds" },
     cardInstanceId: "cat_balou_03",
   },
-  cat_baloue_04: {
+  cat_balou_04: {
     ...cat_balouBase,
     rankAndSuit: { rank: "10", suit: "diamonds" },
     cardInstanceId: "cat_balou_04",
