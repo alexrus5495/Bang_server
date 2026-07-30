@@ -199,7 +199,7 @@ export class PlayerController {
 
   equipCard(player: Player, cardId: string) {
     // 1. Check if the player already has the same card type equipped and remove it
-    const cardPrefix = cardId.split("_").slice(0, -1).join("_").toUpperCase();
+    const cardPrefix = cardId.split("_").slice(0, -1).join("_");
     const currentEquippedCardIndex = this.getEquipmentCardIndex(
       player,
       cardPrefix,
