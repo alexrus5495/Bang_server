@@ -8,6 +8,7 @@ import { SocketEvents } from "./socket-events.js";
 
 import "./TEST_GAME.js";
 import { onTestGame } from "./TEST_GAME.js";
+import { registerDevHandlers } from "./socketEventsHandlers/dev.handlers.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -21,6 +22,8 @@ io.on(SocketEvents.connection, (socket) => {
   registerLobbyHandlers(socket);
 
   registerGameHandlers(socket);
+
+  registerDevHandlers(socket);
 });
 
 httpServer.listen(3000, () => {
