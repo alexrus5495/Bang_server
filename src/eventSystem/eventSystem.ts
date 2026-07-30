@@ -54,9 +54,6 @@ export class EventSystem {
     };
     this.events.push(message);
     this.broadcastEvents();
-
-    console.clear();
-    console.dir(this.events, { depth: null });
   }
 
   private broadcastEvents() {

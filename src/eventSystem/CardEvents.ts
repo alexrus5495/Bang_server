@@ -23,13 +23,66 @@ export class CardEvents {
     });
   }
 
-  played(playerId: string, cardId: string, targetPlayerId?: string) {
+  played(playerId: string, cardId: string, cardIndex: number) {
     this.eventSystem.register("CARD_PLAYED", {
       playerId,
-      cardId,
-      targetPlayerId,
+      card: {
+        id: cardId,
+        index: cardIndex,
+      },
     });
+  }
 
-    console.log(`Registered card played event`);
+  equipped(data: {
+    playerId: string;
+    cardId: string;
+    cardIndex: number;
+    isWeapon?: boolean;
+    range?: number;
+  }) {
+    const card: {
+      id: string;
+      index: number;
+      isWeapon?: boolean;
+      range?: number;
+    } = {
+      id: data.cardId,
+      index: data.cardIndex,
+    };
+
+    if (data.isWeapon) card.isWeapon = data.isWeapon;
+    if (data.range) card.range = data.range;
+
+    this.eventSystem.register("CARD_EQUIPPED", {
+      playerId: data.playerId,
+      card,
+    });
+  }
+
+  unequipped(data: {
+    playerId: string;
+    cardId: string;
+    cardIndex: number;
+    isWeapon?: boolean;
+  }) {
+    const card: {
+      id: string;
+      index: number;
+      isWeapon?: boolean;
+    } = {
+      id: data.cardId,
+      index: data.cardIndex,
+    };
+
+    if (data.isWeapon) card.isWeapon = data.isWeapon;
+
+    this.eventSystem.register("CARD_UNEQUIPPED", {
+      playerId: data.playerId,
+      card,
+    });
+  }
+
+  tableCleared() {
+    this.eventSystem.register("TABLE_CLEARED", null);
   }
 }

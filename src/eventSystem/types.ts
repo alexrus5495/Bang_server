@@ -57,17 +57,29 @@ export interface EventType {
     };
     visibleTo: string[];
   };
-
   CARD_PLAYED: {
     playerId: string;
-    targetPlayerId?: string;
-    cardId: string;
+    card: {
+      id: string;
+      index: number;
+    };
   };
-
-  player_played_card: { playerId: string; cardId: string };
-  player_player_card_against: {
+  CARD_EQUIPPED: {
     playerId: string;
-    targetPlayerId: string;
-    cardId: string;
+    card: {
+      id: string;
+      index: number;
+      isWeapon?: boolean;
+      range?: number;
+    };
   };
+  CARD_UNEQUIPPED: {
+    playerId: string;
+    card: {
+      id: string;
+      index: number;
+      isWeapon?: boolean;
+    };
+  };
+  TABLE_CLEARED: null;
 }
