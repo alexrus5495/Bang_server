@@ -60,7 +60,7 @@ export class Player {
 
     //Find weapon card
     for (const cardId of this.equipment) {
-      const cardPrefix = cardId.split("_")[0];
+      const cardPrefix = cardId.split("_").slice(0, -1).join("_").toUpperCase();
       if (WEAPON_LIST.has(cardPrefix)) {
         weaponCard = cardId;
         weaponRange = WEAPON_LIST.get(cardPrefix) as number;
@@ -168,7 +168,8 @@ export class Player {
     if (cardIndex < 0 || cardIndex >= this[from].length)
       throw new Error("Invalid index");
 
-    const [card] = this[from].splice(cardIndex, 1);
+    const card = this[from][cardIndex];
+    this[from] = this[from].filter((_, index) => index !== cardIndex);
     return card;
   }
 
@@ -207,12 +208,19 @@ export class Player {
     }
   }
 
+  getEquipmentCardId(cardIndex: number) {
+    const card = this.equipment[cardIndex];
+
+    if (!card) throw new Error("failed to find the equipment card");
+
+    return card;
+  }
+
   get currentWeaponIndex() {
     /** @returns index of a weapon card in Player's equipment if Player has any
      * @returns undefined if Player has no weapon cards
      **/
-    for (const weapon of WEAPON_LIST) {
-      const weaponName = weapon[0];
+    for (const [weaponName] of WEAPON_LIST) {
       const foundCard = this.equipment.find((item) =>
         item.startsWith(weaponName + "_"),
       );

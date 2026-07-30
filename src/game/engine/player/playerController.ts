@@ -81,6 +81,10 @@ export class PlayerController {
     return player.maxHealth;
   }
 
+  getHand(player: Player) {
+    return player.hand;
+  }
+
   getNextPlayerFrom(player: Player) {
     if (player.isEliminated)
       throw new Error(
@@ -156,7 +160,75 @@ export class PlayerController {
     return player.getEquipmentCardIndex(cardPrefix);
   }
 
+  getEquipmentCardId(player: Player, index: number) {
+    return player.getEquipmentCardId(index);
+  }
+
   getCurrentWeaponIndex(player: Player) {
     return player.currentWeaponIndex;
+  }
+
+  equipWeapon(player: Player, newWeaponCardId: string) {
+    // 1. Check if the player has any other weapon equipped and remove it
+    const currentWeaponIndex = this.getCurrentWeaponIndex(player);
+
+    let unequippedWeaponId: string | undefined;
+
+    if (currentWeaponIndex !== undefined) {
+      unequippedWeaponId = this.getEquipmentCardId(player, currentWeaponIndex);
+      this.removeEquipmentCard(currentWeaponIndex, player);
+    }
+
+    // 2. Equip new weapon
+    this.addCardToEquipment(player, newWeaponCardId);
+
+    const newWeaponIndex = this.getCurrentWeaponIndex(player);
+    if (newWeaponIndex === undefined) {
+      throw new Error(
+        `Failed to find index for newly equipped weapon: ${newWeaponCardId}`,
+      );
+    }
+
+    return {
+      unequippedWeaponId,
+      unequippedIndex: currentWeaponIndex,
+      newWeaponIndex,
+      newWeaponRange: player.weapon.range,
+    };
+  }
+
+  equipCard(player: Player, cardId: string) {
+    // 1. Check if the player already has the same card type equipped and remove it
+    const cardPrefix = cardId.split("_").slice(0, -1).join("_").toUpperCase();
+    const currentEquippedCardIndex = this.getEquipmentCardIndex(
+      player,
+      cardPrefix,
+    );
+
+    let unequippedCardId: string | undefined;
+
+    if (currentEquippedCardIndex !== undefined) {
+      unequippedCardId = this.getEquipmentCardId(
+        player,
+        currentEquippedCardIndex,
+      );
+      this.removeEquipmentCard(currentEquippedCardIndex, player);
+    }
+
+    // 2. Equip new card
+    this.addCardToEquipment(player, cardId);
+
+    const newEquippedCardIndex = this.getEquipmentCardIndex(player, cardPrefix);
+    if (newEquippedCardIndex === undefined) {
+      throw new Error(
+        `Failed to find index for newly equipped card: ${cardId}`,
+      );
+    }
+
+    return {
+      unequippedCardId,
+      unequippedCardIndex: currentEquippedCardIndex,
+      newCardIndex: newEquippedCardIndex,
+    };
   }
 }

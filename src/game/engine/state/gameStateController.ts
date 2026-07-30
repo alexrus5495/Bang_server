@@ -8,9 +8,9 @@ import { promiseKeys, timerKeys } from "../runtime/runtimeKeys.js";
 import type { PlayingCardMeta, Role } from "../../../types.js";
 import { PlayerAssignmentService } from "../player/playerAssignmentService.js";
 import { EventSystem } from "../../../eventSystem/eventSystem.js";
+import { getCardRankValue } from "../../../lib/getCardRankValue.js";
 
 export class GameStateController {
-  private id: string;
   private runtime: Runtime;
   private playerCtrl: PlayerController;
   private cardCtrl: CardController;
@@ -29,7 +29,6 @@ export class GameStateController {
     runtime: Runtime,
     handlePlayerEliminated: (eliminatedPlayer: Player, killer?: Player) => void,
   ) {
-    this.id = id;
     this.runtime = runtime;
     this.playerCtrl = new PlayerController(id, state, validator, runtime);
     this.cardCtrl = new CardController(state, validator, runtime);
@@ -44,6 +43,7 @@ export class GameStateController {
   }
 
   public readonly player = {
+    getHand: (player: Player) => this.playerCtrl.getHand(player),
     addCardsToTheHand: (player: Player, cards: string[]) =>
       this.playerCtrl.addCardsToTheHand(player, cards),
     addCardToEquipment: (player: Player, card: string) =>
@@ -99,8 +99,14 @@ export class GameStateController {
       this.playerCtrl.hasEquipmentCard(player, cardPrefix),
     getEquipmentCardIndex: (player: Player, cardPrefix: string) =>
       this.playerCtrl.getEquipmentCardIndex(player, cardPrefix),
+    getEquipmentCardId: (player: Player, index: number) =>
+      this.playerCtrl.getEquipmentCardId(player, index),
     getCurrentWeaponIndex: (player: Player) =>
       this.playerCtrl.getCurrentWeaponIndex(player),
+    equipWeapon: (player: Player, weaponCardId: string) =>
+      this.equipWeapon(player, weaponCardId),
+    equipCard: (player: Player, cardId: string) =>
+      this.equipCard(player, cardId),
   };
 
   public readonly deal = {
@@ -114,6 +120,9 @@ export class GameStateController {
     drawCards: (cardsToDraw: number) => this.cardCtrl.drawCards(cardsToDraw),
     drawToHand: (player: Player, cardsToDraw: number) =>
       this.drawToHand(player, cardsToDraw),
+    discardCard: (card: string) => {
+      this.discardCard(card);
+    },
     discardFromHand: (cardIndex: number, player: Player) =>
       this.discardFromHand(cardIndex, player),
     discardEquipment: (cardIndex: number, player: Player) =>
@@ -203,6 +212,10 @@ export class GameStateController {
       const index = player.hand.indexOf(card);
       this.EventSystem.card.drawn(player.id, card, index);
     }
+  }
+
+  private discardCard(card: string) {
+    this.cardCtrl.discardCard(card);
   }
 
   private discardFromHand(cardIndex: number, player: Player) {
@@ -302,39 +315,40 @@ export class GameStateController {
     ) as PlayingCardMeta;
 
     const { rank, suit } = drawnCardMeta.rankAndSuit;
+    const numericRank = getCardRankValue(rank);
 
-    const isCheckSuccessfull =
-      suit === "spades" &&
-      Number.parseInt(rank) >= 2 &&
-      Number.parseInt(rank) <= 9;
+    const willExplose =
+      suit === "spades" && numericRank >= 2 && numericRank <= 9;
 
-    if (isCheckSuccessfull) {
-      //Pass the dynamite card
-      const dynamiteCardIndex = this.player.getEquipmentCardIndex(
-        player,
-        "dynamite",
-      ) as number;
+    const dynamiteCardIndex = this.player.getEquipmentCardIndex(
+      player,
+      "dynamite",
+    ) as number;
 
+    if (willExplose) {
+      // 1. Explosion: take damage and discard
       const dynamiteCard = this.playerCtrl.removeEquipmentCard(
         dynamiteCardIndex,
         player,
       );
+      this.cardCtrl.discardCard(dynamiteCard);
 
-      const nextPlayer = this.player.getNextPlayerFrom(player);
-
-      this.player.addCardToEquipment(nextPlayer, dynamiteCard);
-    } else {
-      //Take dameage
       player.takeDamage(3);
       if (player.isEliminated) this.handlePlayerEliminated(player);
+    } else {
+      // 2. Saved: pass the dynamite card to the next active player
+      const dynamiteCard = this.playerCtrl.removeEquipmentCard(
+        dynamiteCardIndex,
+        player,
+      );
+      const nextPlayer = this.player.getNextPlayerFrom(player);
+      this.player.addCardToEquipment(nextPlayer, dynamiteCard);
     }
   }
 
   private doJailCheck(player: Player) {
     if (!this.player.hasEquipmentCard(player, "jail")) {
-      throw new Error(
-        `doJailCheck was called but player doesn't have dynamite`,
-      );
+      throw new Error(`doJailCheck was called but player doesn't have jail`);
     }
 
     const drawnCard = this.cardCtrl.drawCards(1)[0];
@@ -346,5 +360,62 @@ export class GameStateController {
     const suit = drawnCardMeta.rankAndSuit.suit;
 
     return suit === "hearts";
+  }
+
+  private equipWeapon(player: Player, weaponCardId: string) {
+    // Call PlayerController and store returned values to fill new game events
+    const {
+      unequippedWeaponId,
+      unequippedIndex,
+      newWeaponIndex,
+      newWeaponRange,
+    } = this.playerCtrl.equipWeapon(player, weaponCardId);
+
+    // If the old weapon was unequipped - finish discarding it and emit unequip event
+    if (unequippedWeaponId !== undefined && unequippedIndex !== undefined) {
+      this.discardCard(unequippedWeaponId);
+
+      this.EventSystem.card.unequipped({
+        playerId: player.id,
+        cardId: unequippedWeaponId,
+        cardIndex: unequippedIndex,
+        isWeapon: true,
+      });
+    }
+
+    // Emit new equip event
+    this.EventSystem.card.equipped({
+      playerId: player.id,
+      cardId: weaponCardId,
+      cardIndex: newWeaponIndex,
+      isWeapon: true,
+      range: newWeaponRange,
+    });
+  }
+
+  private equipCard(player: Player, cardId: string) {
+    // Call PlayerController and store returned values to fill new game events
+    const { unequippedCardId, unequippedCardIndex, newCardIndex } =
+      this.playerCtrl.equipCard(player, cardId);
+
+    // If the old weapon was unequipped - finish discarding it and emit unequip event
+    if (unequippedCardId !== undefined && unequippedCardIndex !== undefined) {
+      this.discardCard(unequippedCardId);
+
+      this.EventSystem.card.unequipped({
+        playerId: player.id,
+        cardId: unequippedCardId,
+        cardIndex: unequippedCardIndex,
+        isWeapon: false,
+      });
+    }
+
+    // Emit new equip event
+    this.EventSystem.card.equipped({
+      playerId: player.id,
+      cardId: cardId,
+      cardIndex: newCardIndex,
+      isWeapon: false,
+    });
   }
 }

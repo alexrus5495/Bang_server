@@ -1,5 +1,7 @@
 import { Socket } from "socket.io";
 import { lobbyManager } from "../../lib/LobbyManager.js";
+import { SocketEvents } from "../../socket-events.js";
+import { CardValidationData } from "../../types.js";
 
 type AckCallback = (response: { success: boolean; error?: string }) => void;
 
@@ -28,6 +30,8 @@ export async function onPlayCard(
     return;
   }
 
+  console.log(`Trying to play card ${data.cardIndex}`);
+
   let canPlay: boolean;
 
   if (!data.targetId) {
@@ -49,5 +53,20 @@ export async function onPlayCard(
   }
 
   ack?.({ success: true });
-  game.CEF.playCard(data.cardIndex, player);
+  console.log(`calling playCard on card with index ${data.cardIndex}`);
+
+  if (data.targetId) {
+    const targetPlayer = game.StateController.player.getPlayerById(
+      data.targetId,
+    );
+    game.CEF.playCard(data.cardIndex, player, targetPlayer);
+  } else {
+    game.CEF.playCard(data.cardIndex, player);
+  }
+
+  //Update hand validation data
+  const validationResult: CardValidationData[] | null =
+    game.validator.validateHand(player);
+
+  this.emit(SocketEvents.SEND_HAND_VALIDATION_DATA, validationResult);
 }

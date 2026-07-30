@@ -29,10 +29,15 @@ export class CardEffectsDispatcher {
   }
 
   playCard(cardIndex: number, player: Player, targetPlayer?: Player) {
-    let cardId = player.hand[cardIndex];
-    this.EventSystem.card.played(player.id, cardId, targetPlayer?.id);
+    // 1. Remove card from the hand
+    let cardId = this.StateController.player.removeCardFromHand(
+      cardIndex,
+      player,
+    );
 
-    //1. Trigger card effect
+    this.EventSystem.card.played(player.id, cardId, cardIndex);
+
+    //2. Trigger card effect
     if (player.char === "calamity_janet") {
       cardId = this.validator.tryCalamityJanetCardSwap(cardId, player);
     }
@@ -50,7 +55,7 @@ export class CardEffectsDispatcher {
     const isEquipment = cardMeta.effect.isEquipment;
 
     if (!isEquipment) {
-      this.StateController.cards.discardFromHand(cardIndex, player);
+      this.StateController.cards.discardCard(cardId);
     }
   }
 
@@ -59,7 +64,11 @@ export class CardEffectsDispatcher {
     player: Player,
     targetPlayer?: Player,
   ) {
-    const cardEffectFunctionName = cardId.split("_")[0].toUpperCase();
+    const cardEffectFunctionName = cardId
+      .split("_")
+      .slice(0, -1)
+      .join("_")
+      .toUpperCase();
 
     const effect = CARD_EFFECTS_REGISTRY[cardEffectFunctionName];
 
