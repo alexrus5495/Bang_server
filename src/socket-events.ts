@@ -9,7 +9,9 @@ function createEvents<T extends readonly string[]>(
 
 export const SocketEvents = createEvents([
   // DEV
-  "ADD_TO_HAND",
+  "DEV_ADD_TO_HAND",
+  "DEV_HEAL_PLAYER",
+  "DEV_DAMAGE_PLAYER",
 
   // CORE
   "connect",
