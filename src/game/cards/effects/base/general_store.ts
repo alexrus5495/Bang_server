@@ -1,12 +1,11 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function GENERAL_STORE(
-  game: Game,
-  player: Player,
-  cardId: string,
-) {
+export const GENERAL_STORE: EffectHandler = async ({
+  cardId,
+  player,
+  game,
+}) => {
   console.log(`${player.nickname} plays [GENERAL STORE]`);
 
   //1. Get active players.
@@ -27,7 +26,8 @@ export async function GENERAL_STORE(
     console.log(`${pickingPlayer.nickname} choosing card from the store...`);
 
     //1. Create a promise.
-    const absoluteIndex = game.StateController.player.getPlayersIndex(pickingPlayer);
+    const absoluteIndex =
+      game.StateController.player.getPlayersIndex(pickingPlayer);
     const PROMISE_NAME = promiseKeys.general_store.replace(
       "{index}",
       `${absoluteIndex}`,
@@ -41,7 +41,11 @@ export async function GENERAL_STORE(
     const TIMER_LENGTH_MS = 10000;
     game.runtime.setRuntimeTimer(
       PROMISE_NAME,
-      () => game.StateController.player.pickFromGeneralStore(pickingPlayer, randomCard),
+      () =>
+        game.StateController.player.pickFromGeneralStore(
+          pickingPlayer,
+          randomCard,
+        ),
       TIMER_LENGTH_MS,
     );
 
@@ -50,4 +54,4 @@ export async function GENERAL_STORE(
     await promise.promise;
   }
   console.log(`Shopping is over!`);
-}
+};

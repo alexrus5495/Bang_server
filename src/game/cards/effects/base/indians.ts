@@ -1,8 +1,8 @@
-import type { Game } from "../../../engine/core/game.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import type { Player } from "../../../engine/player/player.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function INDIANS(game: Game, player: Player, cardId: string) {
+export const INDIANS: EffectHandler = async ({ game, player, cardId }) => {
   console.log(`${player.nickname} plays [INDIANS!]`);
 
   game.StateController.player.doAsyncForAllOtherPlayers(
@@ -12,7 +12,8 @@ export async function INDIANS(game: Game, player: Player, cardId: string) {
       otherPlayer.flags.isLimitedToBang = "indians";
 
       //2. Create a promise
-      const absolutePlayerIndex = game.StateController.player.getPlayersIndex(otherPlayer);
+      const absolutePlayerIndex =
+        game.StateController.player.getPlayersIndex(otherPlayer);
       const PROMISE_NAME = promiseKeys.indians.replace(
         "{index}",
         `${absolutePlayerIndex}`,
@@ -39,4 +40,4 @@ export async function INDIANS(game: Game, player: Player, cardId: string) {
         game.handlePlayerEliminated(otherPlayer, player);
     },
   );
-}
+};

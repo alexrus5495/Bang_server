@@ -1,8 +1,7 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export function MISSED(game: Game, player: Player, cardId: string) {
+export const MISSED: EffectHandler = ({ game, cardId, player }) => {
   console.log(`${player.nickname} plays [MISSED!]`);
 
   let availablePromise;
@@ -47,4 +46,4 @@ export function MISSED(game: Game, player: Player, cardId: string) {
     default:
       return;
   }
-}
+};

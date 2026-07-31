@@ -1,13 +1,13 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function CAT_BALOU(
-  game: Game,
-  player: Player,
-  targetPlayer: Player,
-  cardId: string,
-) {
+export const CAT_BALOU: EffectHandler = async ({
+  game,
+  cardId,
+  player,
+  targetPlayer,
+}) => {
+  if (!targetPlayer) return;
   console.log(
     `${player.nickname} plays [CAT BALOU] agains ${targetPlayer.nickname}`,
   );
@@ -61,4 +61,4 @@ export async function CAT_BALOU(
       false,
     );
   }
-}
+};

@@ -1,7 +1,6 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 
-export function SALOON(game: Game, player: Player, cardId: string) {
+export const SALOON: EffectHandler = ({ game, cardId, player }) => {
   console.log(`${player.nickname} plays [SALOON]`);
 
   const activePlayers = game.StateController.player.getActivePlayers();
@@ -11,4 +10,4 @@ export function SALOON(game: Game, player: Player, cardId: string) {
     game.StateController.player.heal(player, healingAmount);
     console.log(`${player.nickname} restores ${healingAmount} HP`);
   }
-}
+};

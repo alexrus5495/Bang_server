@@ -1,7 +1,6 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 
-export function BEER(game: Game, player: Player, cardId: string) {
+export const BEER: EffectHandler = ({ game, cardId, player }) => {
   console.log(`${player.nickname} plays [BEER]`);
 
   const healingAmount = game.validator.getHealingAmount(player);
@@ -13,4 +12,4 @@ export function BEER(game: Game, player: Player, cardId: string) {
   } else {
     game.StateController.player.heal(player, healingAmount);
   }
-}
+};

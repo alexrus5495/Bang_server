@@ -1,8 +1,8 @@
-import type { Game } from "../../../engine/core/game.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import type { Player } from "../../../engine/player/player.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function GATLING(game: Game, player: Player, cardId: string) {
+export const GATLING: EffectHandler = async ({ game, cardId, player }) => {
   console.log(`${player.nickname} plays [GATLING!]`);
 
   game.StateController.player.doAsyncForAllOtherPlayers(
@@ -51,4 +51,4 @@ export async function GATLING(game: Game, player: Player, cardId: string) {
         game.handlePlayerEliminated(otherPlayer, player);
     },
   );
-}
+};

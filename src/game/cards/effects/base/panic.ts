@@ -1,13 +1,13 @@
-import type { Game } from "../../../engine/core/game.js";
-import type { Player } from "../../../engine/player/player.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function PANIC(
-  game: Game,
-  player: Player,
-  targetPlayer: Player,
-  cardId: string,
-) {
+export const PANIC: EffectHandler = async ({
+  cardId,
+  game,
+  player,
+  targetPlayer,
+}) => {
+  if (!targetPlayer) return;
   console.log(
     `${player.nickname} plays [PANIC] against ${targetPlayer.nickname}`,
   );
@@ -62,4 +62,4 @@ export async function PANIC(
       false,
     );
   }
-}
+};

@@ -1,13 +1,16 @@
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import type { Game } from "../../../engine/core/game.js";
 import type { Player } from "../../../engine/player/player.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function BANG(
-  game: Game,
-  player: Player,
-  targetPlayer: Player,
-  cardId: string,
-) {
+export const BANG: EffectHandler = async ({
+  game,
+  cardId,
+  player,
+  targetPlayer,
+}) => {
+  if (!targetPlayer) return;
+
   switch (player.flags.isLimitedToBang) {
     case "duel": {
       duelBang(game, player);
@@ -21,7 +24,7 @@ export async function BANG(
       await regularBang(game, player, targetPlayer);
     }
   }
-}
+};
 
 async function regularBang(game: Game, player: Player, targetPlayer: Player) {
   console.log(

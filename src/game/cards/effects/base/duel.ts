@@ -1,17 +1,19 @@
-import type { Game } from "../../../engine/core/game.js";
+import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 import type { Player } from "../../../engine/player/player.js";
 import { promiseKeys } from "../../../engine/runtime/runtimeKeys.js";
 
-export async function DUEL(
-  game: Game,
-  player: Player,
-  targetPlayer: Player,
-  cardId: string,
-) {
+export const DUEL: EffectHandler = async ({
+  cardId,
+  player,
+  targetPlayer,
+  game,
+}) => {
+  if (!targetPlayer) return;
   let currentDuelist = targetPlayer;
+  if (!currentDuelist) return;
 
   function nextDuelist() {
-    currentDuelist = currentDuelist === targetPlayer ? player : targetPlayer;
+    // currentDuelist = currentDuelist === targetPlayer ? player : targetPlayer;
   }
 
   async function tryToWinDuel(duelist: Player) {
@@ -53,4 +55,4 @@ export async function DUEL(
     `${player.nickname} plays [DUEL] against ${targetPlayer.nickname}`,
   );
   await tryToWinDuel(currentDuelist);
-}
+};
