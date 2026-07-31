@@ -67,11 +67,11 @@ export class GameStateValidator {
 
   validateHand(player: Player) {
     return player.hand.map((card, index) =>
-      this.validateForEveryone(card, index, player),
+      this.validateForEveryOpponent(card, index, player),
     );
   }
 
-  validateForEveryone(
+  validateForEveryOpponent(
     cardId: string,
     index: number,
     player: Player,
