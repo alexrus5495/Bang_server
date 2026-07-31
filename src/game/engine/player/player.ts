@@ -60,7 +60,7 @@ export class Player {
 
     //Find weapon card
     for (const cardId of this.equipment) {
-      const cardPrefix = cardId.split("_").slice(0, -1).join("_").toUpperCase();
+      const cardPrefix = cardId.split("_").slice(0, -1).join("_");
       if (WEAPON_LIST.has(cardPrefix)) {
         weaponCard = cardId;
         weaponRange = WEAPON_LIST.get(cardPrefix) as number;
@@ -153,6 +153,7 @@ export class Player {
     let newHealth = currentHealth - damage;
     if (newHealth < 0) newHealth = 0;
 
+    this.stats.health.current = newHealth;
     if (newHealth === 0) this.flags.isEliminated = true;
   }
 
