@@ -5,9 +5,27 @@ export const SALOON: EffectHandler = ({ game, cardId, player }) => {
 
   const activePlayers = game.StateController.player.getActivePlayers();
 
+  let targets: Array<{
+    playerId: string;
+    amount: number;
+    newHealth: number;
+  }> = [];
+
   for (const player of activePlayers) {
     const healingAmount = game.validator.getHealingAmount(player) as number;
-    game.StateController.player.heal(player, healingAmount);
-    console.log(`${player.nickname} restores ${healingAmount} HP`);
+    if (!healingAmount) throw new Error("Failed to get healing amount");
+
+    if (player.stats.health.current < player.stats.health.max) {
+      game.StateController.player.heal(player, healingAmount);
+
+      targets.push({
+        playerId: player.id,
+        amount: healingAmount,
+        newHealth: player.stats.health.current,
+      });
+    }
   }
+
+  game.EventSystem.player.massHeal(targets);
+  game.EventSystem.card.tableCleared();
 };
