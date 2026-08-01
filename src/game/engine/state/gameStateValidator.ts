@@ -117,6 +117,7 @@ export class GameStateValidator {
 
     if (targetPlayer && targetPlayer.flags.isEliminated) return false;
 
+    //BUG: surely not working how intended, look into later
     if (player.char === "calamity_janet")
       cardId = this.tryCalamityJanetCardSwap(cardId, player);
 

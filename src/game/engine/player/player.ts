@@ -151,7 +151,6 @@ export class Player {
     const currentHealth = this.stats.health.current;
 
     let newHealth = currentHealth - damage;
-    if (newHealth < 0) newHealth = 0;
 
     this.stats.health.current = newHealth;
     if (newHealth === 0) this.flags.isEliminated = true;

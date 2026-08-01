@@ -1,17 +1,19 @@
 import { Socket } from "socket.io";
 import { lobbyManager } from "../../lib/LobbyManager.js";
+import { CardValidationData } from "../../types.js";
+import { SocketEvents } from "../../socket-events.js";
 
 export function onDevHealPlayer(this: Socket, payload: { playerId: string }) {
-  console.log(`got dev heal player for id ${payload.playerId}`);
   const game = lobbyManager.getLobbyByPlayerId(this.id)?.game;
   if (!game) return;
-  console.log(`got game`);
 
   const player = game.StateController.player.getPlayerById(payload.playerId);
   if (!player) return;
-  console.log(`got player`);
 
-  console.log(`old health = ${player.stats.health.current}`);
   player.heal(1);
-  console.log(`new health = ${player.stats.health.current}`);
+
+  const validationResult: CardValidationData[] | null =
+    game.validator.validateHand(player);
+
+  this.emit(SocketEvents.SEND_HAND_VALIDATION_DATA, validationResult);
 }
