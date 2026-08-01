@@ -35,4 +35,42 @@ export class PlayerEvents {
       health,
     });
   }
+
+  healed({
+    playerId,
+    amount,
+    newHealth,
+  }: {
+    playerId: string;
+    amount: number;
+    newHealth: number;
+  }) {
+    this.eventSystem.register("PLAYER_HEALED", { playerId, amount, newHealth });
+  }
+
+  damaged({
+    playerId,
+    amount,
+    newHealth,
+  }: {
+    playerId: string;
+    amount: number;
+    newHealth: number;
+  }) {
+    this.eventSystem.register("PLAYER_DAMAGED", {
+      playerId,
+      amount,
+      newHealth,
+    });
+  }
+
+  eliminated(playerId: string) {
+    this.eventSystem.register("PLAYER_ELIMINATED", { playerId });
+  }
+
+  massHeal(
+    targets: Array<{ playerId: string; amount: number; newHealth: number }>,
+  ) {
+    this.eventSystem.register("MASS_PLAYER_HEALED", { targets });
+  }
 }

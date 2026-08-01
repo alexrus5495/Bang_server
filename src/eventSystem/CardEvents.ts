@@ -1,4 +1,5 @@
 import type { EventSystem } from "./eventSystem.js";
+import { CardEffectFailReasons } from "./types.js";
 
 export class CardEvents {
   constructor(private eventSystem: EventSystem) {}
@@ -84,5 +85,21 @@ export class CardEvents {
 
   tableCleared() {
     this.eventSystem.register("TABLE_CLEARED", null);
+  }
+
+  effectFailed({
+    playerId,
+    cardId,
+    reason,
+  }: {
+    playerId: string;
+    cardId: string;
+    reason: CardEffectFailReasons;
+  }) {
+    this.eventSystem.register("CARD_EFFECT_FAILED", {
+      playerId,
+      cardId,
+      reason,
+    });
   }
 }

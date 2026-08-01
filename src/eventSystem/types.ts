@@ -40,6 +40,17 @@ export interface EventType {
   PLAYER_DISCARDING_END: { playerId: string };
   PLAYER_TURN_END: { playerId: string };
 
+  // Player utility events
+  PLAYER_HEALED: { playerId: string; amount: number; newHealth: number };
+  MASS_PLAYER_HEALED: {
+    targets: Array<{ playerId: string; amount: number; newHealth: number }>;
+  };
+  PLAYER_DAMAGED: { playerId: string; amount: number; newHealth: number };
+  MASS_PLAYER_DAMAGED: {
+    targets: Array<{ playerId: string; amount: number; newHealth: number }>;
+  };
+  PLAYER_ELIMINATED: { playerId: string };
+
   // Card events
   CARD_DRAWN: {
     playerId: string;
@@ -82,4 +93,11 @@ export interface EventType {
     };
   };
   TABLE_CLEARED: null;
+  CARD_EFFECT_FAILED: {
+    playerId: string;
+    cardId: string;
+    reason: CardEffectFailReasons;
+  };
 }
+
+export type CardEffectFailReasons = "HEALTH_FULL" | "TWO_PEOPLE_LEFT";
