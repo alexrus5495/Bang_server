@@ -1,6 +1,6 @@
 import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 
-export const SALOON: EffectHandler = ({ game, cardId, player }) => {
+export const SALOON: EffectHandler = ({ game, cardId: _, player }) => {
   console.log(`${player.nickname} plays [SALOON]`);
 
   const activePlayers = game.StateController.player.getActivePlayers();
