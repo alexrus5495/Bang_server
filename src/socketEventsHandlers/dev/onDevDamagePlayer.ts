@@ -7,7 +7,7 @@ export function onDevDamagePlayer(this: Socket, payload: { playerId: string }) {
   const game = lobbyManager.getLobbyByPlayerId(this.id)?.game;
   if (!game) return;
 
-  const player = game.StateController.player.getPlayerById(payload.playerId);
+  const player = game.stateCtrl.playerCtrl.getPlayerById(payload.playerId);
   if (!player) return;
 
   player.takeDamage(1);

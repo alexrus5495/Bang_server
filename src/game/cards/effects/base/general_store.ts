@@ -8,20 +8,31 @@ export const GENERAL_STORE: EffectHandler = async ({
 }) => {
   console.log(`${player.nickname} plays [GENERAL STORE]`);
 
-  //1. Get active players.
-  const activePlayers = game.StateController.player.getActivePlayers();
+  // 1. Get ordered array of active players
+  const activePlayers =
+    game.StateController.player.getActivePlayersStartingFrom(player);
 
-  //2. Rotate array, so the current player is on top.
-  const relativeIndex = activePlayers.indexOf(player);
-  const queue = [
-    ...activePlayers.slice(relativeIndex),
-    ...activePlayers.slice(0, relativeIndex),
-  ];
+  // 2. Draw N cards to fill the store
+  const storeCards = game.StateController.cards.drawCards(activePlayers.length);
 
-  //3. Draw cards based on queue length.
-  const cardPool = game.StateController.cards.drawCards(queue.length);
+  // 3. Update current interaction inside game state
+  game.state.pendingInteraction;
 
-  //4. Each player picks a card consecutively.
+  // 1. Create STORE_INITIATED event and send in to clients
+  game.EventSystem.store.initiated(
+    storeCards,
+    activePlayers.map((p) => p.id),
+  );
+
+  // 2. Consecutively wait for every player's choice
+  for (let i = 0; i < activePlayers.length; i++) {
+    const currentPicker = activePlayers[i];
+    const isLast = i === activePlayers.length - 1;
+
+    if (isLast) {
+    }
+  }
+
   for (const pickingPlayer of queue) {
     console.log(`${pickingPlayer.nickname} choosing card from the store...`);
 

@@ -9,7 +9,7 @@ export function onJoinGame(this: Socket, lobbyId: string) {
 
   if (!lobby || !lobby.game) return;
 
-  if (lobby.game.StateController.assignmentService.isPlayerAssigned(this.id)) {
+  if (lobby.game.stateCtrl.assignmentService.isPlayerAssigned(this.id)) {
     return;
   }
 
@@ -17,7 +17,7 @@ export function onJoinGame(this: Socket, lobbyId: string) {
 
   if (!seat || !seat.playerName) return;
 
-  lobby.game.StateController.assignmentService.assignToAnEmptySlot(seat);
+  lobby.game.stateCtrl.assignmentService.assignToAnEmptySlot(seat);
 
   this.emit(SocketEvents.SEND_CARDS_META, lobby.game.publicCardMeta);
 }

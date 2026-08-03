@@ -8,10 +8,10 @@ export function onDevAddToHand(this: Socket, cardId: string) {
   const game = lobbyManager.getLobbyByPlayerId(this.id)?.game;
   if (!game) return;
 
-  const player = game.StateController.player.getPlayerById(this.id);
+  const player = game.stateCtrl.playerCtrl.getPlayerById(this.id);
   if (!player) return;
 
-  game.StateController.player.addCardsToTheHand(player, [cardId]);
+  game.stateCtrl.playerCtrl.addCardsToTheHand(player, [cardId]);
 
   const validationResult: CardValidationData[] | null =
     game.validator.validateHand(player);

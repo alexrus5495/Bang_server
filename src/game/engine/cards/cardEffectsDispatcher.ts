@@ -7,9 +7,9 @@ import { GameStateValidator } from "../state/gameStateValidator.js";
 import { CARD_EFFECTS_REGISTRY, EffectHandler } from "./cardEffectsRegistry.js";
 
 export class CardEffectsDispatcher {
-  private StateController: GameStateController;
+  private stateController: GameStateController;
   private validator: GameStateValidator;
-  private EventSystem: EventSystem;
+  private eventSystem: EventSystem;
   private game: Game;
 
   constructor(
@@ -18,21 +18,21 @@ export class CardEffectsDispatcher {
     eventSystem: EventSystem,
     game: Game,
   ) {
-    this.StateController = stateController;
+    this.stateController = stateController;
     this.validator = validator;
     this.game = game;
-    this.EventSystem = eventSystem;
+    this.eventSystem = eventSystem;
   }
 
   playCard(cardIndex: number, player: Player, targetPlayer?: Player) {
     // 1. Remove card from the hand
-    let cardId = this.StateController.player.removeCardFromHand(
+    let cardId = this.stateController.playerCtrl.removeCardFromHand(
       cardIndex,
       player,
     );
 
     // 2. Register CARD_PLAYER event
-    this.EventSystem.card.played(player.id, cardId, cardIndex);
+    this.eventSystem.card.played(player.id, cardId, cardIndex);
 
     // 3. Trigger character specific card swap (e.g. Calamity Janet)
     if (player.char === "calamity_janet") {
@@ -40,7 +40,7 @@ export class CardEffectsDispatcher {
     }
 
     // 4. Get card metadata
-    const cardMeta = this.StateController.cards.getCardMeta(
+    const cardMeta = this.stateController.cardCtrl.getCardMeta(
       cardId,
       "deck",
     ) as PlayingCardMeta;
@@ -55,7 +55,7 @@ export class CardEffectsDispatcher {
     //played is decided by their effect function.
     const isEquipment = cardMeta.effect.isEquipment;
     if (!isEquipment) {
-      this.StateController.cards.discardCard(cardId);
+      this.stateController.cardCtrl.discardCard(cardId);
     }
   }
 

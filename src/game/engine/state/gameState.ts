@@ -3,6 +3,7 @@ import type {
   PlayingCardMeta,
   RoleCardMeta,
 } from "../../../types.js";
+import { PendingInteraction } from "../../interaction/interactionController.js";
 import type { Deck } from "../cards/deck.js";
 import type { Player } from "../player/player.js";
 
@@ -15,6 +16,7 @@ export class GameState {
   players: Player[];
   roles: Record<string, Player[]>;
   currentPlayer: number;
+  private pendingInteraction: PendingInteraction;
 
   constructor(deck: Deck, charDeck: Deck, roleDeck: Deck, players: Player[]) {
     this._deck = deck;
@@ -30,7 +32,9 @@ export class GameState {
       deputy: [],
       renegade: [],
     };
+    this.pendingInteraction = null;
   }
+
   public get deck(): string[] {
     return this._deck.deck;
   }

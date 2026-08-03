@@ -5,6 +5,6 @@ export const STAGECOACH: EffectHandler = ({ game, cardId, player }) => {
     throw new Error("Got unexpected cardId");
   console.log(`${player.nickname} plays [STAGECOACH]`);
 
-  game.StateController.cards.drawToHand(player, 2);
-  game.EventSystem.card.tableCleared();
+  game.actions.card.drawToHand(player, 2);
+  game.eventSystem.card.tableCleared();
 };

@@ -23,7 +23,7 @@ export async function onPlayCard(
     return;
   }
 
-  const player = game.StateController.player.getPlayerById(this.id);
+  const player = game.stateCtrl.playerCtrl.getPlayerById(this.id);
   if (!player) {
     console.log(`failed to get the player`);
     ack?.({ success: false, error: "Player not found" });
@@ -37,9 +37,7 @@ export async function onPlayCard(
   if (!data.targetId) {
     canPlay = game.validator.isCardAllowedToPlay(data.cardIndex, player);
   } else {
-    const targetPlayer = game.StateController.player.getPlayerById(
-      data.targetId,
-    );
+    const targetPlayer = game.stateCtrl.playerCtrl.getPlayerById(data.targetId);
     canPlay = game.validator.isCardAllowedToPlay(
       data.cardIndex,
       player,
@@ -56,12 +54,10 @@ export async function onPlayCard(
   console.log(`calling playCard on card with index ${data.cardIndex}`);
 
   if (data.targetId) {
-    const targetPlayer = game.StateController.player.getPlayerById(
-      data.targetId,
-    );
-    game.CEF.playCard(data.cardIndex, player, targetPlayer);
+    const targetPlayer = game.stateCtrl.playerCtrl.getPlayerById(data.targetId);
+    game.cardsDispatcher.playCard(data.cardIndex, player, targetPlayer);
   } else {
-    game.CEF.playCard(data.cardIndex, player);
+    game.cardsDispatcher.playCard(data.cardIndex, player);
   }
 
   //Update hand validation data

@@ -3,7 +3,7 @@ import { EffectHandler } from "../../../engine/cards/cardEffectsRegistry.js";
 export const SALOON: EffectHandler = ({ game, cardId: _, player }) => {
   console.log(`${player.nickname} plays [SALOON]`);
 
-  const activePlayers = game.StateController.player.getActivePlayers();
+  const activePlayers = game.stateCtrl.playerCtrl.getActivePlayers();
 
   let targets: Array<{
     playerId: string;
@@ -16,7 +16,7 @@ export const SALOON: EffectHandler = ({ game, cardId: _, player }) => {
     if (!healingAmount) throw new Error("Failed to get healing amount");
 
     if (player.stats.health.current < player.stats.health.max) {
-      game.StateController.player.heal(player, healingAmount);
+      game.stateCtrl.playerCtrl.heal(player, healingAmount);
 
       targets.push({
         playerId: player.id,
@@ -26,6 +26,6 @@ export const SALOON: EffectHandler = ({ game, cardId: _, player }) => {
     }
   }
 
-  game.EventSystem.player.massHeal(targets);
-  game.EventSystem.card.tableCleared();
+  game.eventSystem.player.massHeal(targets);
+  game.eventSystem.card.tableCleared();
 };

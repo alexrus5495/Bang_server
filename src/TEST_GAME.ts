@@ -108,7 +108,7 @@ export async function onTestGame(this: Socket) {
 
   for (const player of lobby.seats) {
     if (player.type === "ai") {
-      lobby.game.StateController.assignmentService.assignToAnEmptySlot(player);
+      lobby.game.stateCtrl.assignmentService.assignToAnEmptySlot(player);
     }
   }
 }

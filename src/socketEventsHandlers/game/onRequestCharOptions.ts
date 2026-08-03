@@ -12,7 +12,7 @@ export async function onRequestCharOptions(this: Socket) {
       return;
     }
 
-    const player = game.StateController.player.getPlayerById(this.id);
+    const player = game.stateCtrl.playerCtrl.getPlayerById(this.id);
     if (!player) {
       return;
     }

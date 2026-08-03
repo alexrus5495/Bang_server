@@ -318,16 +318,12 @@ export class GameStateValidator {
     return false;
   }
 
-  isGroupEliminated(role: Role) {
+  isGroupEliminated(role: Role): boolean {
     const group = this.state.getPlayersByRole(role);
 
-    group.forEach((player) => {
-      if (!player.flags.isEliminated) {
-        return false;
-      }
-    });
+    if (group.length === 0) return true;
 
-    return true;
+    return group.every((player) => player.flags.isEliminated);
   }
 
   isPenaltyForSheriff(eliminatedPlayer: Player, killer: Player) {

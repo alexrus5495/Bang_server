@@ -77,6 +77,20 @@ export class PlayerController {
     return this.state.players.filter((player) => !player.isEliminated);
   }
 
+  getActivePlayersStartingFrom(player: Player) {
+    //1. Get active players.
+    const activePlayers = this.getActivePlayers();
+
+    //2. Rotate array, so the current player is on top.
+    const relativeIndex = activePlayers.indexOf(player);
+    const result = [
+      ...activePlayers.slice(relativeIndex),
+      ...activePlayers.slice(0, relativeIndex),
+    ];
+
+    return result;
+  }
+
   getMaxHealth(player: Player) {
     return player.maxHealth;
   }

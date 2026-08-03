@@ -8,7 +8,7 @@ export const BEER: EffectHandler = ({ game, cardId, player }) => {
   if (!healingAmount) throw new Error("Failed to get healing amount");
 
   if (game.validator.playersActive <= 2) {
-    game.EventSystem.card.effectFailed({
+    game.eventSystem.card.effectFailed({
       playerId: player.id,
       cardId,
       reason: "TWO_PEOPLE_LEFT",
@@ -17,7 +17,7 @@ export const BEER: EffectHandler = ({ game, cardId, player }) => {
   }
 
   if (player.stats.health.current === player.stats.health.max) {
-    game.EventSystem.card.effectFailed({
+    game.eventSystem.card.effectFailed({
       playerId: player.id,
       cardId,
       reason: "HEALTH_FULL",
@@ -25,13 +25,13 @@ export const BEER: EffectHandler = ({ game, cardId, player }) => {
     return;
   }
 
-  game.StateController.player.heal(player, healingAmount);
+  game.stateCtrl.playerCtrl.heal(player, healingAmount);
 
-  game.EventSystem.player.healed({
+  game.eventSystem.player.healed({
     playerId: player.id,
     amount: healingAmount,
     newHealth: player.stats.health.current,
   });
 
-  game.EventSystem.card.tableCleared();
+  game.eventSystem.card.tableCleared();
 };

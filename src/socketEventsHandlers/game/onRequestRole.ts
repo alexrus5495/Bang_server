@@ -9,7 +9,7 @@ export async function onRequestRole(this: Socket) {
   try {
     const game = lobbyManager.getLobbyByPlayerId(this.id)?.game;
     if (!game) return;
-    const player = game.StateController.player.getPlayerById(this.id);
+    const player = game.stateCtrl.playerCtrl.getPlayerById(this.id);
     if (!player) return;
 
     let role: string = "";
