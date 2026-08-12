@@ -1,4 +1,7 @@
-import { sendTimerUpdate } from "../../../lib/sendTimerUpdate.js";
+import {
+  BroadcastedTimerData,
+  sendTimerUpdate,
+} from "../../../lib/sendTimerUpdate.js";
 
 export type TimerData =
   | {
@@ -20,22 +23,22 @@ export class TimerManager {
     if (!this.timers[name]) this.timers[name] = {};
 
     this.timers[name].timer = setTimeout(() => {
-      handler();
       this.cleanupRuntimeTimer(name);
+      handler();
     }, timeout);
   }
 
   public cleanupRuntimeTimer(name: string) {
     if (this.timers[name] && this.timers[name].timer) {
       clearTimeout(this.timers[name].timer);
-      this.timers[name] = undefined;
+      delete this.timers[name];
     }
   }
 
   public cleanupBroadcastedRuntimeTimer(name: string) {
     if (this.timers[name] && this.timers[name].timer) {
       clearInterval(this.timers[name].timer);
-      this.timers[name] = undefined;
+      delete this.timers[name];
     }
   }
 
@@ -47,7 +50,26 @@ export class TimerManager {
   ) {
     this.cleanupBroadcastedRuntimeTimer(name);
 
+    // 1. Start timer
     const startTime = Date.now();
+
+    // 2. Form and send the first tick data
+    // Otherwise setInterval below would only send data 1 sec after timer has been
+    // created. It could cause visual bugs on the client side.
+    const initialRemaining = Math.ceil(timeout / 1000);
+    const initialTimerData: BroadcastedTimerData = {
+      timerId: name,
+      currentValue: initialRemaining,
+      maxValue: timeout,
+    };
+
+    if (typeof receiverID === "string") {
+      sendTimerUpdate(receiverID, initialTimerData);
+    } else {
+      for (const receiver of receiverID) {
+        sendTimerUpdate(receiver, initialTimerData);
+      }
+    }
 
     if (!this.timers[name]) this.timers[name] = {};
 
@@ -55,11 +77,17 @@ export class TimerManager {
       const elapsed = Date.now() - startTime;
       const remaining = Math.ceil((timeout - elapsed) / 1000);
 
+      const timerData: BroadcastedTimerData = {
+        timerId: name,
+        currentValue: remaining,
+        maxValue: timeout,
+      };
+
       if (typeof receiverID === "string") {
-        sendTimerUpdate(receiverID, remaining);
+        sendTimerUpdate(receiverID, timerData);
       } else {
         for (const receiver of receiverID) {
-          sendTimerUpdate(receiver, remaining);
+          sendTimerUpdate(receiver, timerData);
         }
       }
 

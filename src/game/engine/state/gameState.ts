@@ -16,7 +16,7 @@ export class GameState {
   players: Player[];
   roles: Record<string, Player[]>;
   currentPlayer: number;
-  private pendingInteraction: PendingInteraction;
+  pendingInteraction: PendingInteraction;
 
   constructor(deck: Deck, charDeck: Deck, roleDeck: Deck, players: Player[]) {
     this._deck = deck;

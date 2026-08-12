@@ -1,3 +1,4 @@
+import { EventSystem } from "../../eventSystem/eventSystem.js";
 import { Player } from "../engine/player/player.js";
 import { Runtime } from "../engine/runtime/runtime.js";
 import { promiseKeys, timerKeys } from "../engine/runtime/runtimeKeys.js";
@@ -9,6 +10,7 @@ export class InteractionActions {
     private stateCtrl: GameStateController,
     private cardActions: CardActions,
     private runtime: Runtime,
+    private eventSystem: EventSystem,
   ) {}
 
   public onPlayerPickChar(player: Player, option: 0 | 1): void {
@@ -24,66 +26,33 @@ export class InteractionActions {
     this.stateCtrl.assignmentService.assignChar(player, option);
   }
 
-  //
-  //
-  //
-  //  Legacy methods (to-rewrite)
-  //
-  //
-  //
-  public pickFromGeneralStore(player: Player, cardId: string): void {
-    this.stateCtrl.playerCtrl.addCardsToTheHand(player, [cardId]);
+  public pickStoreCard(playerId: string, cardIndex: number): void {
+    console.log(`called pick action`);
+    const pending = this.stateCtrl.interactionCtrl.pending;
 
-    const playerIndex = this.stateCtrl.playerCtrl.getPlayersIndex(player);
-    const PROMISE_NAME = promiseKeys.general_store.replace(
-      "{index}",
-      `${playerIndex}`,
-    );
-    this.runtime.cleanupRuntimeTimer(PROMISE_NAME);
-    this.runtime.resolveRuntimePromise(PROMISE_NAME, true);
-  }
+    if (!pending || pending.type !== "GENERAL_STORE") {
+      throw new Error("No active General Store");
+    }
 
-  public pickPanicCard(
-    player: Player,
-    targetPlayer: Player,
-    cardIndex: number,
-    pickFrom: "hand" | "equipment",
-    resolved?: boolean,
-  ): void {
-    const card =
-      pickFrom === "hand"
-        ? this.stateCtrl.playerCtrl.removeCardFromHand(cardIndex, targetPlayer)
-        : this.stateCtrl.playerCtrl.removeEquipmentCard(
-            cardIndex,
-            targetPlayer,
-          );
+    const currentPickerId = pending.pickersOrder[pending.currentPickerIndex];
+    console.log(`currentPickerId is ${currentPickerId}`);
 
-    this.stateCtrl.playerCtrl.addCardsToTheHand(player, [card]);
+    if (playerId !== currentPickerId) {
+      throw new Error("It's not your turn to pick a card");
+    }
 
-    if (resolved) return;
-    const PROMISE_NAME = promiseKeys.panic;
-    this.runtime.resolveRuntimePromise(PROMISE_NAME, true);
-  }
+    const pickedCardId =
+      this.stateCtrl.interactionCtrl.store.pickCardByIndex(cardIndex);
 
-  public pickCatBalouCard(
-    targetPlayer: Player,
-    cardIndex: number,
-    pickFrom: "hand" | "equipment",
-    resolved?: boolean,
-  ): void {
-    const card =
-      pickFrom === "hand"
-        ? this.stateCtrl.playerCtrl.removeCardFromHand(cardIndex, targetPlayer)
-        : this.stateCtrl.playerCtrl.removeEquipmentCard(
-            cardIndex,
-            targetPlayer,
-          );
+    const player = this.stateCtrl.playerCtrl.getPlayerById(playerId);
+    if (!player) return;
+    this.stateCtrl.playerCtrl.addCardsToHand(player, [pickedCardId]);
 
-    this.cardActions.discardCard(card);
+    this.eventSystem.store.cardPicked(playerId, pickedCardId, cardIndex);
 
-    if (resolved) return;
-
-    const PROMISE_NAME = promiseKeys.cat_balou;
-    this.runtime.resolveRuntimePromise(PROMISE_NAME, true);
+    const promiseName = promiseKeys.general_store.replace("{index}", playerId);
+    if (this.runtime.getRuntimePromise(promiseName)) {
+      this.runtime.resolveRuntimePromise(promiseName, true);
+    }
   }
 }

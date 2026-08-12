@@ -12,4 +12,5 @@ export const promiseKeys = {
 
 export const timerKeys = {
   charSelection: "player{index}_charSelection",
+  general_store: "player{index}_storeSelection",
 };

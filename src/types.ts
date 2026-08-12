@@ -144,3 +144,7 @@ export type CardValidationData = {
   target: "self" | "many" | "one" | "all";
   possibleTargets: string[] | null;
 };
+
+export type ClientAckPayload = {
+  ackKey: string;
+};

@@ -7,16 +7,17 @@ export class PromiseManager {
     this.promises = {};
   }
 
-  setRuntimePromise(name: string, counters?: Record<string, number>) {
-    this.cleanupRuntimePromise(name);
+  setRuntimePromise(name: string) {
+    let resolver: ((result: boolean) => void) | undefined;
 
-    this.promises[name].promise = new Promise<boolean>((resolve) => {
-      this.promises[name].resolve = resolve;
+    const promise = new Promise<boolean>((resolve) => {
+      resolver = resolve;
     });
 
-    if (counters) {
-      this.promises[name].counters = counters;
-    }
+    this.promises[name] = {
+      promise,
+      resolve: resolver,
+    };
   }
 
   resolveRuntimePromise(name: string, result: boolean) {
@@ -31,7 +32,6 @@ export class PromiseManager {
     this.promises[name] = {
       promise: undefined,
       resolve: undefined,
-      counters: undefined,
     };
   }
 }

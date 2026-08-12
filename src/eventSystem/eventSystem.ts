@@ -5,6 +5,7 @@ import { PreLaunchEvents } from "./PreLaunchEvents.js";
 import { PlayerEvents } from "./PlayerEvents.js";
 import { FlowEvents } from "./FlowEvents.js";
 import { CardEvents } from "./CardEvents.js";
+import { StoreEvents } from "./StoreEvents.js";
 
 type PendingBroadcast = {
   timeout: NodeJS.Timeout;
@@ -29,6 +30,7 @@ export class EventSystem {
   readonly player: PlayerEvents;
   readonly flow: FlowEvents;
   readonly card: CardEvents;
+  readonly store: StoreEvents;
 
   constructor(gameId: string) {
     this.lobbyId = gameId;
@@ -39,6 +41,7 @@ export class EventSystem {
     this.player = new PlayerEvents(this);
     this.flow = new FlowEvents(this);
     this.card = new CardEvents(this);
+    this.store = new StoreEvents(this);
   }
 
   //

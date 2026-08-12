@@ -51,6 +51,14 @@ export interface EventType {
   };
   PLAYER_ELIMINATED: { playerId: string };
 
+  // General Store game events
+  STORE_INITIATED: { playersOrder: string[] };
+  STORE_CARD_ADDED: { cardId: string; index: number };
+  STORE_READY: null;
+  STORE_CARD_PICKED: { cardId: string; playerId: string; cardIndex: number };
+  STORE_NEXT_PICKER: { playerId: string };
+  STORE_CLOSED: null;
+
   // Card events
   CARD_DRAWN: {
     playerId: string;

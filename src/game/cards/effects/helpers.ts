@@ -13,7 +13,7 @@ export function equipWeaponEffect(
     );
   }
 
-  game.stateCtrl.playerCtrl.equipWeapon(player, cardId);
+  game.actions.card.equipWeapon(player, cardId);
 }
 
 export function equipCardEffect(
@@ -28,5 +28,5 @@ export function equipCardEffect(
     );
   }
 
-  game.stateCtrl.playerCtrl.equipCard(player, cardId);
+  game.actions.card.equipCard(player, cardId);
 }

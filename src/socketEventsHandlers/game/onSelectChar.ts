@@ -5,8 +5,8 @@ export function onSelectChar(this: Socket, lobbyId: string, charOption: 0 | 1) {
   const lobby = lobbyManager.lobbies[lobbyId];
   if (!lobby?.game) return;
 
-  const player = lobby.game.StateController.player.getPlayerById(this.id);
+  const player = lobby.game.stateCtrl.playerCtrl.getPlayerById(this.id);
   if (!player) return;
 
-  lobby.game.IC.onPlayerPickChar(player, charOption);
+  lobby.game.actions.interaction.onPlayerPickChar(player, charOption);
 }

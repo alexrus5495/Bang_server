@@ -7,6 +7,7 @@ import { onRequestCharOptions } from "./game/onRequestCharOptions.js";
 import { onSelectChar } from "./game/onSelectChar.js";
 import { onRequestHandValidation } from "./game/onRequestHandValidation.js";
 import { onPlayCard } from "./game/onPlayCard.js";
+import { onResolveInteraction } from "./game/onResolveInteraction.js";
 
 export function registerGameHandlers(socket: Socket) {
   socket.on(SocketEvents.CREATE_GAME, onCreateGame);
@@ -16,4 +17,5 @@ export function registerGameHandlers(socket: Socket) {
   socket.on(SocketEvents.SELECT_CHAR, onSelectChar);
   socket.on(SocketEvents.REQUEST_HAND_VALIDATION, onRequestHandValidation);
   socket.on(SocketEvents.PLAY_CARD, onPlayCard);
+  socket.on(SocketEvents.RESOLVE_INTERACTION, onResolveInteraction);
 }

@@ -20,7 +20,7 @@ export class CardActions {
   //
   public drawToHand(player: Player, cardsToDraw: number): void {
     const cards = this.stateCtrl.cardCtrl.drawCards(cardsToDraw);
-    this.stateCtrl.playerCtrl.addCardsToTheHand(player, cards);
+    this.stateCtrl.playerCtrl.addCardsToHand(player, cards);
     for (const card of cards) {
       const index = player.hand.indexOf(card);
       this.eventSystem.card.drawn(player.id, card, index);

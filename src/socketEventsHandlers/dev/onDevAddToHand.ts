@@ -11,7 +11,7 @@ export function onDevAddToHand(this: Socket, cardId: string) {
   const player = game.stateCtrl.playerCtrl.getPlayerById(this.id);
   if (!player) return;
 
-  game.stateCtrl.playerCtrl.addCardsToTheHand(player, [cardId]);
+  game.stateCtrl.playerCtrl.addCardsToHand(player, [cardId]);
 
   const validationResult: CardValidationData[] | null =
     game.validator.validateHand(player);

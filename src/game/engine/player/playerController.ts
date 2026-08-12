@@ -26,8 +26,8 @@ export class PlayerController {
     return this.state.currentPlayer;
   }
 
-  addCardsToTheHand(player: Player, cards: string[]) {
-    player.addCardsToTheHand(cards);
+  addCardsToHand(player: Player, cards: string[]) {
+    player.addCardsToHand(cards);
   }
 
   addCardToEquipment(player: Player, card: string) {
@@ -184,6 +184,8 @@ export class PlayerController {
 
   equipWeapon(player: Player, newWeaponCardId: string) {
     // 1. Check if the player has any other weapon equipped and remove it
+
+    console.log(`inside equip weapon`);
     const currentWeaponIndex = this.getCurrentWeaponIndex(player);
 
     let unequippedWeaponId: string | undefined;
@@ -203,6 +205,11 @@ export class PlayerController {
       );
     }
 
+    console.log(`finished equipWeapon`);
+    console.log(unequippedWeaponId);
+    console.log(currentWeaponIndex);
+    console.log(newWeaponIndex);
+    console.log(player.weapon.range);
     return {
       unequippedWeaponId,
       unequippedIndex: currentWeaponIndex,

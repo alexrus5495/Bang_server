@@ -4,7 +4,6 @@ import type { TimerData, TimerManager } from "./timerManager.js";
 export interface RuntimePromise {
   promise: Promise<boolean> | undefined;
   resolve: ((result: boolean) => void) | undefined;
-  counters?: Record<string, number>;
 }
 
 export class Runtime {
@@ -20,15 +19,15 @@ export class Runtime {
     name: string,
     autoResolveTimer?: number,
     autoResolveValue: boolean = false,
-    counters?: Record<string, number>,
   ) {
-    this.promiseMngr.setRuntimePromise(name, counters);
+    this.promiseMngr.setRuntimePromise(name);
 
+    // Set up a timeout, if provided
     if (autoResolveTimer) {
       this.timerMngr.cleanupRuntimeTimer(name);
       this.timerMngr.setRuntimeTimer(
         name,
-        () => this.promiseMngr.resolveRuntimePromise(name, autoResolveValue),
+        () => this.resolveRuntimePromise(name, autoResolveValue),
         autoResolveTimer,
       );
     }
@@ -36,9 +35,19 @@ export class Runtime {
 
   resolveRuntimePromise(name: string, result: boolean) {
     const promise = this.getRuntimePromise(name);
-    if (promise) {
-      this.promiseMngr.resolveRuntimePromise(name, result);
-    } else throw new Error("Failed to find a promise");
+    if (!promise) {
+      console.warn(
+        `[Runtime] Attempted to resolve non-existend or expired promise: ${name}`,
+      );
+      return;
+    }
+
+    // 1. Cleanup timers (if exist)
+    this.timerMngr.cleanupRuntimeTimer(name);
+    this.timerMngr.cleanupBroadcastedRuntimeTimer(name);
+
+    // 2. Resolve promise
+    this.promiseMngr.resolveRuntimePromise(name, result);
   }
 
   setRuntimeTimer(name: string, handler: () => void, timeout: number) {
@@ -79,5 +88,21 @@ export class Runtime {
 
   getRuntimeTimer(name: string) {
     return this.timerMngr.getTimer(name);
+  }
+
+  public async waitForClientAck(
+    ackKey: string,
+    timeoutMs: number = 5000,
+  ): Promise<boolean> {
+    this.setRuntimePromise(ackKey, timeoutMs, false);
+
+    const promiseWrapper = this.getRuntimePromise(ackKey);
+    const isOk = await promiseWrapper?.promise;
+
+    return Boolean(isOk);
+  }
+
+  public handleClientAck(ackKey: string) {
+    this.resolveRuntimePromise(ackKey, true);
   }
 }

@@ -156,7 +156,7 @@ export class Player {
     if (newHealth === 0) this.flags.isEliminated = true;
   }
 
-  addCardsToTheHand(cards: string[]) {
+  addCardsToHand(cards: string[]) {
     this.hand.push(...cards);
   }
 

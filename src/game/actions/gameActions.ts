@@ -30,7 +30,12 @@ export class GameActions {
       eventSystem,
       gameFlow,
     );
-    this.interaction = new InteractionActions(stateCtrl, this.card, runtime);
+    this.interaction = new InteractionActions(
+      stateCtrl,
+      this.card,
+      runtime,
+      eventSystem,
+    );
     this.preLaunch = new PreLaunchActions(this.player, runtime, eventSystem);
   }
 }
