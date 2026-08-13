@@ -1,7 +1,6 @@
 import { EventSystem } from "../../eventSystem/eventSystem.js";
-import { Player } from "../engine/player/player.js";
 import { Runtime } from "../engine/runtime/runtime.js";
-import { promiseKeys, timerKeys } from "../engine/runtime/runtimeKeys.js";
+import { promiseKeys } from "../engine/runtime/runtimeKeys.js";
 import { GameStateController } from "../engine/state/gameStateController.js";
 import { CardActions } from "./cardActions.module.js";
 
@@ -13,17 +12,8 @@ export class InteractionActions {
     private eventSystem: EventSystem,
   ) {}
 
-  public onPlayerPickChar(player: Player, option: 0 | 1): void {
-    if (player.char !== "") return;
-
-    const playerIndex = this.stateCtrl.playerCtrl.getPlayersIndex(player);
-    const TIMER_NAME = timerKeys.charSelection.replace(
-      "{index}",
-      `${playerIndex}`,
-    );
-    this.runtime.cleanupBroadcastedRuntimeTimer(TIMER_NAME);
-
-    this.stateCtrl.assignmentService.assignChar(player, option);
+  public pickChar(playerId: string, optionIndex: number): void {
+    this.stateCtrl.assignmentService.assignChar(playerId, optionIndex);
   }
 
   public pickStoreCard(playerId: string, cardIndex: number): void {

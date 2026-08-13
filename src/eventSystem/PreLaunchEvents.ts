@@ -27,6 +27,18 @@ export class PreLaunchEvents {
     this.eventSystem.register("CARDS_DEALT", null);
   }
 
+  charSelectionStarted() {
+    this.eventSystem.register("CHAR_SELECTION_STARTED", null);
+  }
+
+  charSelectionCompleted() {
+    this.eventSystem.register("CHAR_SELECTION_COMPLETED", null);
+  }
+
+  charCardsDealt(playerId: string, options: { id: string; bullets: number }[]) {
+    this.eventSystem.register("CHAR_CARDS_DEALT", { playerId, options });
+  }
+
   gameStarted() {
     this.eventSystem.register("GAME_STARTED", null);
   }

@@ -1,7 +1,7 @@
 import { EventSystem } from "../../../eventSystem/eventSystem.js";
 import { LobbySeat, Role } from "../../../types.js";
 import { Runtime } from "../runtime/runtime.js";
-import { promiseKeys } from "../runtime/runtimeKeys.js";
+import { promiseKeys, timerKeys } from "../runtime/runtimeKeys.js";
 import { GameState } from "../state/gameState.js";
 import { GameStateValidator } from "../state/gameStateValidator.js";
 import { Player } from "./player.js";
@@ -59,23 +59,59 @@ export class PlayerAssignmentService {
     this.eventSystem.player.assignedRole(player.id, roleCardId);
   }
 
-  assignChar(player: Player, option: 0 | 1) {
-    if (!player.id || player.char !== "") return;
+  assignChar(playerId: string, optionIndex: number) {
+    const pending = this.state.pendingInteraction;
+    if (!pending || pending.type !== "CHAR_SELECTION") {
+      console.warn(
+        `No active CHAR_SELECTION interaction for player ${playerId}`,
+      );
+      return;
+    }
 
-    player.pickCharCard(option);
+    const player = this.state.players.find((p) => p.id === playerId);
+    if (!player || player.flags.isCharReady) {
+      return;
+    }
+
+    const playerData = pending.options.find(
+      (item) => item.playerId === playerId,
+    );
+    if (!playerData) {
+      console.warn(`Char options not found for player ${playerId}`);
+      return;
+    }
+
+    // Clear the auto-resolve timer
+    const playerIndex = this.state.players.indexOf(player);
+    const TIMER_NAME = timerKeys.charSelection.replace(
+      "{index}",
+      `${playerIndex}`,
+    );
+    this.runtime.cleanupBroadcastedRuntimeTimer(TIMER_NAME);
+
+    // Apply the choice
+    const selectedOption =
+      playerData.options[optionIndex] ?? playerData.options[0];
+    player.assignChar(selectedOption);
+
+    // Notify event system
     this.eventSystem.player.assignedChar(
-      player.id,
-      player.charOptions[option].id,
+      player.id!,
+      player.char!,
       player.stats.health,
     );
 
-    if (this.validator.isAllCharsAssigned) {
-      this.runtime.resolveRuntimePromise(promiseKeys.charSelection, true);
-    }
-  }
+    // Check if all players finished choosing
+    const allReady = this.state.players.every((p) => p.flags.isCharReady);
 
-  setCharOptions(player: Player, options: { id: string; bullets: number }[]) {
-    player.charOptions = options;
+    if (allReady) {
+      this.state.pendingInteraction = null;
+      this.eventSystem.preLaunch.charSelectionCompleted();
+
+      if (this.runtime.getRuntimePromise(promiseKeys.charSelection)) {
+        this.runtime.resolveRuntimePromise(promiseKeys.charSelection, true);
+      }
+    }
   }
 
   isPlayerAssigned(id: string) {

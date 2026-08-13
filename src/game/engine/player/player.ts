@@ -24,7 +24,6 @@ export class Player {
     bangCardsPlayed: number;
     bangCardsPlayedLimit: number;
   };
-  charOptions: { id: string; bullets: number }[];
 
   constructor() {
     this.isAI = undefined;
@@ -51,7 +50,6 @@ export class Player {
         max: 0,
       },
     };
-    this.charOptions = [];
   }
 
   get weapon() {
@@ -135,12 +133,11 @@ export class Player {
     this.flags.isRoleReady = true;
   }
 
-  pickCharCard(option: 0 | 1) {
-    const char = this.charOptions[option];
-    this.char = char.id;
+  assignChar(option: { id: string; bullets: number }) {
+    this.char = option.id;
 
     this.stats.health.max =
-      this.role === "sheriff" ? char.bullets + 1 : char.bullets;
+      this.role === "sheriff" ? option.bullets + 1 : option.bullets;
 
     this.stats.health.current = this.stats.health.max;
 

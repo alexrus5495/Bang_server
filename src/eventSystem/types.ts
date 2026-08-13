@@ -11,16 +11,18 @@ export interface EventType {
   // Pre-launch events
   GAME_CREATED: { gameId: string; deckSize: number; numberOfSeats: number };
   INITIALIZATION_STARTED: null;
-  INITIALIZATION_COMPLETED: null;
-  DEALING_CARDS: null;
-  CARDS_DEALT: null;
-  GAME_STARTED: null;
   PLAYER_ASSIGNED_SLOT: {
     index: number;
     playerData: Pick<ClientPlayer, "id" | "nickname" | "color" | "isAI">;
   };
   PLAYERS_SHUFFLED: { newOrder: string[] };
   PLAYER_ASSIGNED_ROLE: { playerId: string; role: string; visibleTo: string[] };
+
+  CHAR_SELECTION_STARTED: null;
+  CHAR_CARDS_DEALT: {
+    playerId: string;
+    options: { id: string; bullets: number }[];
+  };
   PLAYER_ASSIGNED_CHAR: {
     playerId: string;
     char: string;
@@ -29,6 +31,13 @@ export interface EventType {
       max: number;
     };
   };
+  CHAR_SELECTION_COMPLETED: null;
+
+  DEALING_CARDS: null;
+  CARDS_DEALT: null;
+
+  INITIALIZATION_COMPLETED: null;
+  GAME_STARTED: null;
 
   // Game flow events
   PLAYER_TURN_START: { playerId: string };

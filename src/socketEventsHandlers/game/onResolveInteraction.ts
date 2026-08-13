@@ -1,13 +1,18 @@
 import { Socket } from "socket.io";
 import { lobbyManager } from "../../lib/LobbyManager.js";
-import { promiseKeys } from "../../game/engine/runtime/runtimeKeys.js";
 import { Game } from "../../game/engine/core/game.js";
 
-export type ResolveInteractionPayload = {
-  type: "GENERAL_STORE";
-  cardIndex: number;
-  playerId: string;
-};
+export type ResolveInteractionPayload =
+  | {
+      type: "GENERAL_STORE";
+      cardIndex: number;
+      playerId: string;
+    }
+  | {
+      type: "CHAR_SELECTION";
+      playerId: string;
+      optionIndex: number;
+    };
 
 export function onResolveInteraction(
   this: Socket,
@@ -26,6 +31,14 @@ export function onResolveInteraction(
         payload.playerId,
         lobby.game,
       );
+      break;
+    case "CHAR_SELECTION":
+      resolveCharSelectionInteraction(
+        payload.playerId,
+        payload.optionIndex,
+        lobby.game,
+      );
+      break;
     default:
       break;
   }
@@ -39,4 +52,15 @@ function resolveGeneralStoreInteraction(
   const player = game.stateCtrl.playerCtrl.getPlayerById(playerId);
   if (!player) return;
   game.actions.interaction.pickStoreCard(playerId, cardIndex);
+}
+
+function resolveCharSelectionInteraction(
+  playerId: string,
+  optionIndex: number,
+  game: Game,
+) {
+  console.log(`got resolve interaction for char selection`);
+  const player = game.stateCtrl.playerCtrl.getPlayerById(playerId);
+  if (!player) return;
+  game.actions.interaction.pickChar(playerId, optionIndex);
 }

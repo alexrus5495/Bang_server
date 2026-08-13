@@ -1,7 +1,12 @@
 import { Runtime } from "../engine/runtime/runtime.js";
 import { GameState } from "../engine/state/gameState.js";
 
-export type PendingInteraction = GeneralStoreInteraction | null;
+export type PendingInteraction = GeneralStoreInteraction | CharSelection | null;
+
+export type CharSelection = {
+  type: "CHAR_SELECTION";
+  options: { playerId: string; options: { id: string; bullets: number }[] }[];
+};
 
 export type GeneralStoreInteraction = {
   type: "GENERAL_STORE";
@@ -28,6 +33,23 @@ export class InteractionController {
 
   public resetPending() {
     this.state.pendingInteraction = null;
+  }
+
+  //--- CHAR SELECTION API ---
+  public get charSelection() {
+    return {
+      start: (
+        options: {
+          playerId: string;
+          options: { id: string; bullets: number }[];
+        }[],
+      ) => {
+        this.setPending({
+          type: "CHAR_SELECTION",
+          options,
+        });
+      },
+    };
   }
 
   // --- GENERAL STORE API ---
