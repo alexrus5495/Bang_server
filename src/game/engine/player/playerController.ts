@@ -73,6 +73,10 @@ export class PlayerController {
     return card;
   }
 
+  getAllPlayers() {
+    return this.state.players;
+  }
+
   getActivePlayers() {
     return this.state.players.filter((player) => !player.isEliminated);
   }

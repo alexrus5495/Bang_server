@@ -1,5 +1,4 @@
 import { EventSystem } from "../../eventSystem/eventSystem.js";
-import { Game } from "../engine/core/game.js";
 import { GameFlow } from "../engine/core/gameFlow.js";
 import { Runtime } from "../engine/runtime/runtime.js";
 import { GameStateController } from "../engine/state/gameStateController.js";

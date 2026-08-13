@@ -82,12 +82,6 @@ export class TurnManager {
   private initiatePlayingPhase(player: Player): void {
     this.eventSystem.flow.playingStart(player.id);
     this.stateCtrl.playerCtrl.resetBangCounter(player);
-
-    // Temporary plug for AI
-    if (player.isAI) {
-      console.log("AI SKIPPING PLAYING PHASE");
-      this.endPlayingPhase(player);
-    }
   }
 
   public endPlayingPhase(player: Player): void {
@@ -98,17 +92,6 @@ export class TurnManager {
   // --- PHASE 3: DISCARDING CARDS ---
   private initiateDiscardingPhase(player: Player): void {
     this.eventSystem.flow.discardingStart(player.id);
-
-    // Temporary AI plug - auto discard
-    if (player.isAI) {
-      while (!this.validator.canEndDiscardingPhase(player)) {
-        const discardedCard = player.hand[0];
-        this.actions.card.discardFromHand(0, player);
-        this.eventSystem.card.discarded(player.id, discardedCard, 0);
-      }
-
-      this.endDiscardingPhase(player);
-    }
   }
 
   public endDiscardingPhase(player: Player): void {

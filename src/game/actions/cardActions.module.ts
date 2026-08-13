@@ -36,6 +36,7 @@ export class CardActions {
       cardIndex,
       player,
     );
+    this.eventSystem.card.discarded(player.id, discardedCard, cardIndex);
     this.stateCtrl.cardCtrl.discardCard(discardedCard);
   }
 

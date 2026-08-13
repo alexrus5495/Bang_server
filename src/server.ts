@@ -9,10 +9,13 @@ import { SocketEvents } from "./socket-events.js";
 import "./TEST_GAME.js";
 import { onTestGame } from "./TEST_GAME.js";
 import { registerDevHandlers } from "./socketEventsHandlers/dev.handlers.js";
+import { getAiHandlers } from "./game/engine/ai/handlers/loader.js";
 
 const app = express();
 const httpServer = createServer(app);
 export const io = new Server(httpServer, { cors: { origin: "*" } });
+
+export const AI_HANDLERS = await getAiHandlers();
 
 io.on(SocketEvents.connection, (socket) => {
   socket.once("TEST_GAME", onTestGame);
