@@ -9,18 +9,20 @@ import { CardEffectsDispatcher } from "../cards/cardEffectsDispatcher.js";
 import { EventSystem } from "../../../eventSystem/eventSystem.js";
 import { GameActions } from "../../actions/gameActions.js";
 import { TurnManager } from "./turnManager.js";
+import { AiController } from "../ai/AiController.js";
 
 export class Game {
-  id: string;
-  private runtime: Runtime;
+  public readonly id: string;
+  public readonly runtime: Runtime;
   private state: GameState;
-  stateCtrl: GameStateController;
-  actions: GameActions;
-  validator: GameStateValidator;
-  cardsDispatcher: CardEffectsDispatcher;
-  flow: GameFlow;
-  eventSystem: EventSystem;
-  turnMngr: TurnManager;
+  public stateCtrl: GameStateController;
+  public actions: GameActions;
+  public validator: GameStateValidator;
+  public cardsDispatcher: CardEffectsDispatcher;
+  public flow: GameFlow;
+  public eventSystem: EventSystem;
+  public turnMngr: TurnManager;
+  private aiCtrl: AiController | null = null;
 
   public constructor(
     id: string,
@@ -54,6 +56,7 @@ export class Game {
       this.runtime,
       this.eventSystem,
       this.flow,
+      () => this.initAiCtrl(),
     );
 
     this.turnMngr.setActions(this.actions);
@@ -73,5 +76,14 @@ export class Game {
       charDeckMeta: this.state.charDeckMeta,
       roleDeckMeta: this.state.roleDeckMeta,
     };
+  }
+
+  public initAiCtrl() {
+    this.aiCtrl = new AiController(this);
+  }
+
+  public destroyAiCtrl() {
+    this.aiCtrl?.destroy();
+    this.aiCtrl = null;
   }
 }

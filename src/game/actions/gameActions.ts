@@ -1,4 +1,5 @@
 import { EventSystem } from "../../eventSystem/eventSystem.js";
+import { Game } from "../engine/core/game.js";
 import { GameFlow } from "../engine/core/gameFlow.js";
 import { Runtime } from "../engine/runtime/runtime.js";
 import { GameStateController } from "../engine/state/gameStateController.js";
@@ -20,6 +21,7 @@ export class GameActions {
     runtime: Runtime,
     eventSystem: EventSystem,
     gameFlow: GameFlow,
+    onPlayersAssigned?: () => void,
   ) {
     this.card = new CardActions(stateCtrl, runtime, eventSystem);
     this.player = new PlayerActions(
@@ -36,6 +38,12 @@ export class GameActions {
       runtime,
       eventSystem,
     );
-    this.preLaunch = new PreLaunchActions(this.player, runtime, eventSystem);
+    this.preLaunch = new PreLaunchActions(
+      stateCtrl,
+      this.card,
+      runtime,
+      eventSystem,
+      onPlayersAssigned,
+    );
   }
 }

@@ -24,6 +24,8 @@ export class GameFlow {
     await this.actions.preLaunch.prepareMatch();
 
     console.log("--- GAME PREPARED ---");
+
+    this.startGame();
   }
 
   /**

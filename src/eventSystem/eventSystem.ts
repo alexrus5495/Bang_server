@@ -17,6 +17,8 @@ type ClientCache = {
   events: GameEvent[];
 };
 
+type EventSubscriber = (event: GameEvent) => void;
+
 const DEBOUNCE_MS = 25;
 const MAX_WAIT_MS = 100;
 
@@ -26,6 +28,9 @@ export class EventSystem {
   private events: GameEvent[];
   private pendingBroadcast: PendingBroadcast | null;
   private cache: Map<string, ClientCache>;
+  private aiSubscribers: EventSubscriber[] = [];
+
+  // Event dictionaries
   readonly preLaunch: PreLaunchEvents;
   readonly player: PlayerEvents;
   readonly flow: FlowEvents;
@@ -47,15 +52,32 @@ export class EventSystem {
   //
   // ─── Core ───
   //
+  public subscribeAi(subscriber: EventSubscriber): () => void {
+    this.aiSubscribers.push(subscriber);
+
+    // Return unsubscribe function
+    return () => {
+      this.aiSubscribers = this.aiSubscribers.filter((s) => s !== subscriber);
+    };
+  }
 
   register<K extends keyof EventType>(type: K, data: EventType[K]) {
-    const message: GameEvent = {
+    const event: GameEvent = {
       id: this.events.length,
       type,
       data,
       timestamp: new Date(),
     };
-    this.events.push(message);
+
+    // 1. Save the event
+    this.events.push(event);
+
+    // 2. Notify AI subscribers
+    for (const subscriber of this.aiSubscribers) {
+      subscriber(event);
+    }
+
+    // 3. Broadcast through socket
     this.broadcastEvents();
   }
 
